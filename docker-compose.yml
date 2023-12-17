@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  mariadb1:
+    image: mariadb
+    container_name: mariadb-1
+    environment:
+      MYSQL_ROOT_PASSWORD: shussk02
+      MYSQL_DATABASE: mydatabase
+    volumes:
+      - .\mariadb1\50-server.cnf:\etc\mysql\mariadb.conf.d\50-server.cnf
+    ports:
+      - "13306:3306"
+
+  mariadb2:
+    image: mariadb
+    container_name: mariadb-2
+    environment:
+      MYSQL_ROOT_PASSWORD: shussk02
+    volumes:
+      - .\mariadb2\50-server.cnf:\etc\mysql\mariadb.conf.d\50-server.cnf
+    ports:
+      - "23306:3306"
+
+  mariadb3:
+    image: mariadb
+    container_name: mariadb-3
+    environment:
+      MYSQL_ROOT_PASSWORD: shussk02
+    volumes:
+      - .\mariadb3\50-server.cnf:\etc\mysql\mariadb.conf.d\50-server.cnf
+    ports:
+      - "33306:3306"
+
+  maxscale1:
+    image: maxscale:latest
+    container_name: maxscale-1
+    ports:
+      - "4007:4007"
+
+  web:
+    build:
+      context: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"

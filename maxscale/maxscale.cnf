@@ -1,0 +1,64 @@
+[maxscale]
+threads=auto
+log_info=false
+
+## Servers
+##
+[Primary]
+type=server
+address=172.31.0.4
+port=3306
+protocol=MariaDBBackend
+#
+[Replica]
+type=server
+address=172.31.0.3
+port=3306
+protocol=MariaDBBackend
+#
+[Replica-2]
+type=server
+address=172.31.0.5
+port=3306
+protocol=MariaDBBackend
+#
+#
+[MariaDB-Monitor]
+type=monitor
+module=mariadbmon
+servers=Primary, Replica, Replica-2
+user=maxmon
+password=shussk02
+#
+monitor_interval=1000ms
+verify_master_failure=true
+enforce_read_only_slaves=true
+auto_failover=true
+auto_rejoin=true
+#
+#
+### This is the replication-rwsplit-service
+[Read-Write-Service]
+type=service
+router=readwritesplit
+servers=Primary, Replica, Replica-2
+user=maxuser
+password=shussk02
+master_reconnection=true
+master_failure_mode=error_on_write
+transaction_replay=true
+slave_selection_criteria=ADAPTIVE_ROUTING
+master_accept_reads=true
+#
+[Read-Write-Listener]
+type=listener
+service=Read-Write-Service
+protocol=MariaDBClient
+port=4007
+#
+#
+
+address=0.0.0.0
+# this enables external access to the REST API outside of localhost
+# please review / modify for any public / non development environments
+#admin_host=0.0.0.0
