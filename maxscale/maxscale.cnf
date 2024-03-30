@@ -6,19 +6,19 @@ log_info=false
 ##
 [Primary]
 type=server
-address=172.31.0.4
+address=172.18.0.6
 port=3306
 protocol=MariaDBBackend
 #
 [Replica]
 type=server
-address=172.31.0.3
+address=172.18.0.4
 port=3306
 protocol=MariaDBBackend
 #
 [Replica-2]
 type=server
-address=172.31.0.5
+address=172.18.0.5
 port=3306
 protocol=MariaDBBackend
 #
@@ -30,7 +30,7 @@ servers=Primary, Replica, Replica-2
 user=maxmon
 password=shussk02
 #
-monitor_interval=1000ms
+monitor_interval=500ms
 verify_master_failure=true
 enforce_read_only_slaves=true
 auto_failover=true
@@ -62,3 +62,4 @@ address=0.0.0.0
 # this enables external access to the REST API outside of localhost
 # please review / modify for any public / non development environments
 #admin_host=0.0.0.0
+#admin_secure_gui=false

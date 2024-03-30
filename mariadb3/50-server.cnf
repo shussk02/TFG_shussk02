@@ -8,9 +8,9 @@
 # this is only for the mariadbd daemon
 [mariadbd]
 log_error
-log_bin=mariadb-bin
+log_bin
 log_slave_updates=1
-server_id=3000
+server_id=3
 
 #
 # * Basic Settings
