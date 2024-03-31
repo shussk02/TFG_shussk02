@@ -11,6 +11,11 @@ services:
       - ./mariadb1/50-server.cnf:/etc/mysql/mariadb.conf.d/50-server.cnf
     ports:
       - "13306:3306"
+    networks:
+      mariadb_network:
+        aliases:
+          - mariadb1_host
+    
 
   mariadb2:
     image: mariadb:latest
@@ -21,6 +26,10 @@ services:
       - ./mariadb2/50-server.cnf:/etc/mysql/mariadb.conf.d/50-server.cnf
     ports:
       - "23306:3306"
+    networks:
+      mariadb_network:
+        aliases:
+          - mariadb2_host
 
   mariadb3:
     image: mariadb:latest
@@ -31,6 +40,10 @@ services:
       - ./mariadb3/50-server.cnf:/etc/mysql/mariadb.conf.d/50-server.cnf
     ports:
       - "33306:3306"
+    networks:
+      mariadb_network:
+        aliases:
+          - mariadb3_host
 
   maxscale:
     image: mariadb/maxscale:latest
@@ -39,6 +52,10 @@ services:
       - ./maxscale/maxscale.cnf:/etc/maxscale.cnf
     ports:
       - "4007:4007"
+    networks:
+      mariadb_network:
+        aliases:
+          - max_host
 
   app:
     build:
@@ -50,3 +67,14 @@ services:
       - "8000:8000"
     depends_on:
       - mariadb1
+    networks:
+      mariadb_network:
+        aliases:
+          - django_host
+
+networks:
+  mariadb_network:
+    name: mariadb_net
+    driver: bridge
+    ipam: 
+      driver: default

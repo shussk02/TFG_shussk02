@@ -1,0 +1,33 @@
+<!-- base.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>My django web-app</title>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <link href='//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+</head>
+<body>
+
+    <header>
+        <h1>{% block header %}{% endblock %}</h1>
+        <!-- Se pueden incluir elementos comunes del encabezado aquí -->
+    </header>
+
+    <nav>
+        <!-- Se puede incluir la navegación común aquí -->
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+        <!-- Este bloque se llenará con el contenido específico de cada página -->
+    </main>
+
+    <footer>
+        <!-- Se pueden incluir elementos comunes del pie de página aquí -->
+        <p>&copy; django web-app</p>
+    </footer>
+
+</body>
+</html>
