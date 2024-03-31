@@ -1,42 +1,30 @@
 import csv
 import io
-from logging import Logger
-from django.forms import ValidationError
 from django.views.generic.list import ListView
 from pyexpat.errors import *
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from .forms import *
-from .models import *
-
-logger = Logger(__name__)
+import pandas as pd
+from .forms import UploadFileForm
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
 
 
-def upload_csv(request):
-    template_name = "upload.html"
+def mostrar_csv(request):
     if request.method == 'POST':
-        csv_file = request.FILES['csv_file']
-        if not csv_file.name.endswith('.csv'):
-            messages.error(request, 'This is not a csv file')
-        else:
-            data_set = csv_file.read().decode('UTF-8')
-            lines = data_set.split("\n")
-            csv_data = []
-            for line in lines:
-                fields = line.split(";")
-                if len(fields) < 4:
-                    continue
-                csv_data.append(fields)
-            request.session['csv_data'] = csv_data
-            return redirect('preview_csv')
-    return render(request, template_name)
-
-
-def preview_csv(request):
-    csv_data = request.session.get('csv_data')
-    if csv_data is None:
-        return redirect('upload_csv')
-    return render(request, 'preview.html', {'csv_data': csv_data})
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            archivo_csv = request.FILES['archivo_csv']
+            separador = form.cleaned_data['separador']
+            try:
+                df = pd.read_csv(archivo_csv, sep=separador)
+                tabla_html = df.to_html()
+            except pd.errors.EmptyDataError:
+                tabla_html = "<p>El archivo CSV está vacío.</p>"
+            except pd.errors.ParserError:
+                tabla_html = "<p>El archivo no es un CSV válido.</p>"
+            return render(request, 'mostrar_csv.html', {'form': form, 'tabla_html': tabla_html})
+    else:
+        form = UploadFileForm()
+    return render(request, 'cargar_csv.html', {'form': form})

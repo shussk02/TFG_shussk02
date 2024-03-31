@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'polls.apps.PollsConfig',
+    'import_export'
 ]
 
 MIDDLEWARE = [
@@ -73,6 +74,8 @@ WSGI_APPLICATION = 'djangoDocker.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+
+IMPORT_EXPORT_USE_TRANSACTIONS = True
 
 DATABASES = {
     'default': {
