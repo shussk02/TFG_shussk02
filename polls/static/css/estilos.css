@@ -1,0 +1,5 @@
+/* Estilo básico para celdas editables */
+.editable-cell {
+    border: 1px solid #ccc;
+    padding: 5px;
+}

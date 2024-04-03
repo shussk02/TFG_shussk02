@@ -11,7 +11,8 @@ def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
 
 
-def mostrar_csv(request):
+# Vista para procesar la carga del archivo CSV
+def cargar_csv(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
@@ -19,12 +20,28 @@ def mostrar_csv(request):
             separador = form.cleaned_data['separador']
             try:
                 df = pd.read_csv(archivo_csv, sep=separador)
-                tabla_html = df.to_html()
-            except pd.errors.EmptyDataError:
-                tabla_html = "<p>El archivo CSV está vacío.</p>"
-            except pd.errors.ParserError:
-                tabla_html = "<p>El archivo no es un CSV válido.</p>"
-            return render(request, 'mostrar_csv.html', {'form': form, 'tabla_html': tabla_html})
+                # Convertir el DataFrame en una lista de diccionarios
+                df_dict = df.to_dict(orient='records')
+                # Guardar la lista de diccionarios en la sesión
+                request.session['df'] = df_dict
+                return redirect('mostrar_csv')
+            except (pd.errors.EmptyDataError, pd.errors.ParserError):
+                form.add_error('archivo_csv', 'Error al procesar el archivo CSV.')
     else:
         form = UploadFileForm()
     return render(request, 'cargar_csv.html', {'form': form})
+
+# Vista para mostrar el archivo CSV cargado
+def mostrar_csv(request):
+    df_dict = request.session.get('df')
+    if df_dict is not None:
+        # Convertir la lista de diccionarios en un DataFrame
+        df = pd.DataFrame(df_dict)
+        # Obtener los nombres de las columnas y los datos de la tabla
+        columnas = df.columns.tolist()
+        datos = df.values.tolist()
+        # Combinar los nombres de las columnas y los datos en una lista
+        tabla_html = [columnas] + datos
+        return render(request, 'mostrar_csv.html', {'tabla_html': tabla_html})
+    else:
+        return redirect('cargar_csv')
