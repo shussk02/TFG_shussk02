@@ -1,5 +1,46 @@
-/* Estilo básico para celdas editables */
-.editable-cell {
+input{
+    width: 200px;
+    border: 0cap;
+}
+
+fieldset {
+    padding: 10px;
+    margin-bottom: 10px;
     border: 1px solid #ccc;
-    padding: 5px;
+    border-radius: 5px;
+    width: fit-content; 
+    max-width: 450px;
+}
+
+legend {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+label {
+    display: inline-block;
+}
+
+
+.checkbox-container {
+    display: flex;
+}
+
+.checkbox-item {
+    align-self: center;
+    transform: scale(1.5);
+}
+
+
+.centrarHeader{
+    font-weight: bold;
+    text-align: center;
+}
+
+.centrarData{
+    text-align: center;
+}
+
+button{
+    margin-top: 10px;
 }

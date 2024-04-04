@@ -1,30 +1,43 @@
-
-
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <title>Mostrar CSV</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/estilos.css' %}">
+    
 </head>
 
 <body>
     <h1>Contenido del archivo CSV</h1>
-    <form method="post">
+    <form method="post" action="{% url 'update' %}">
         {% csrf_token %}
-        <table>
-            <thead >
-                <tr style="text-align: center;">
+        <fieldset>
+            <legend>Seleccionar columnas a almacenar:</legend>
+            <div class="checkbox-container">
+                {% for header in columnas %}
+                <div class="checkbox-item">
+                    <input type="checkbox" id="header_{{ forloop.counter0 }}" name="columnas" value="{{ header }}">
+                </div>
+                {% endfor %}
+            </div>
+        </fieldset>
+        <table border="1">
+            <thead>
+                <tr>
                     {% for header in columnas %}
-                    <th style="font-weight: bold"><input type="text" name="header_{{ forloop.counter0 }}" value="{{ header }}"></th>
+                    <th><input class="centrarHeader" type="text" name="header_{{ forloop.counter0 }}"
+                            value="{{ header }}"></th>
                     {% endfor %}
                 </tr>
             </thead>
             <tbody>
-                {% for row in tabla_html %}
-                <tr>
+                {% for row in datos %}
+                <tr >
                     {% for value in row %}
-                    <td><input type="text" name="{{ forloop.parentloop.counter0 }}_{{ forloop.counter0 }}" value="{{ value }}"></td>
+                    <td ><input class="centrarData" type="text" name="fila{{ forloop.parentloop.counter0 }}_columna{{ forloop.counter0 }}"
+                            value="{{ value }}"></td>
                     {% endfor %}
                 </tr>
                 {% endfor %}
@@ -32,6 +45,11 @@
         </table>
         <button type="submit">Guardar cambios</button>
     </form>
+    
+    <a href="{% url 'cargar_csv' %}">
+        <button>Cargar nuevo CSV</button>
+    </a>
+    
 </body>
 
 </html>
