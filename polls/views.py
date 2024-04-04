@@ -19,6 +19,7 @@ def cargar_csv(request):
         
         # Verificar si el formulario es válido
         if form.is_valid():
+            
             # Obtener el archivo CSV y el separador del formulario válido
             archivo_csv = request.FILES['archivo_csv']
             separador = form.cleaned_data['separador']
