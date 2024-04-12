@@ -10,34 +10,46 @@
 </head>
 
 <body>
-    <h1>Contenido del archivo CSV</h1>
-    {% csrf_token %}
-    <table border="1">
-        <thead>
-            <tr>
-                {% for header in columnas %}
-                <th class="centrarHeader">{{ header }} </th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in datos %}
-            <tr>
-                {% for value in row %}
-                <td class="centrarData">{{ value }}</td>
+    <h1>Datos obtenidos del CSV</h1>
 
+    <form method="post" action="{% url 'columnas_seleccionadas' %}">
+
+        {% csrf_token %}
+        <table border="1">
+            <thead>
+                <tr>
+                    {% for header in columnas %}
+
+                    <div>
+                        <th class="centrarHeader"> <input type="checkbox" id="header_{{ forloop.counter0 }}"
+                                name="columna{{ forloop.counter0 }}" value="{{ header }}">{{ header }} </th>
+                    </div>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in datos %}
+                <tr>
+                    {% for value in row %}
+                    <td class="centrarData">{{ value }}</td>
+
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    
-    <a href="{% url 'modificar_csv' %}">
-        <button type="button">Modificar columnas</button>
-    </a>
-    <a href="{% url 'cargar_csv' %}">
-        <button>Cargar nuevo CSV</button>
-    </a>
+            </tbody>
+        </table>
+
+        <button type="submit">Confirmar seleccion</button>
+    </form>
+    <div class="boton-container">
+        <a href="{% url 'modificar_csv' %}">
+            <button type="button">Modificar columnas</button>
+        </a>
+        <a href="{% url 'cargar_csv' %}">
+            <button type="button">Cargar nuevo CSV</button>
+        </a>
+    </div>
+
 
 </body>
 

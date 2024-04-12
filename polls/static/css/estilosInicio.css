@@ -17,5 +17,18 @@ table {
 
 button{
     margin-top: 10px;
+    margin-right: 10px;
 }
 
+.boton-container {
+    display: flex; 
+}
+
+.checkbox-container {
+    display: flex;
+}
+
+.checkbox-item {
+    align-self: center;
+    transform: scale(1.5);
+}

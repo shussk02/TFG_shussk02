@@ -114,9 +114,41 @@ def update(request):
             # Guardar el DataFrame actualizado en la sesión
             request.session['df'] = df.to_dict(orient='records')
 
-        # Redirigir de vuelta a la vista modificar_csv para mostrar los cambios
+        # Redirigir de vuelta a la vista mostrar_csv para mostrar los cambios
         return redirect('mostrar_csv')
     
     else:
         # Si no es una solicitud POST, redirigir a la página de inicio o mostrar un mensaje de error
         return redirect('cargar_csv')
+
+
+def columnas_seleccionadas(request):
+    if request.method == 'POST':
+
+        # Obtener los nombres de las columnas seleccionadas
+
+        selected = [request.POST[f'columna{i}'] for i in range(len(request.POST)) if f'columna{i}' in request.POST]
+
+        if (selected):
+
+            # Obtener los datos originales del DataFrame de la sesión
+            df_dict = request.session.get('df')
+
+            if df_dict is not None:
+
+                # Crear un DataFrame con los datos originales
+                df = pd.DataFrame(df_dict)
+
+                # Filtramos el dataframe con los nombres de las columnas obtenidas
+                df_filtrado = df[selected]
+
+                # Saco los nombres de las columnas y los datos correspondientes a estas
+                columnas = df_filtrado.columns.tolist()
+                datos = df_filtrado.values.tolist()
+                
+
+
+            return render(request, 'selected_columns_view.html', {'columnas': columnas, 'datos': datos})
+
+        else:
+            return redirect('mostrar_csv')

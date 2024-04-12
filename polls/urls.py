@@ -7,4 +7,5 @@ urlpatterns = [
     path('view/', mostrar_csv, name='mostrar_csv'),
     path('edit/', modificar_csv, name='modificar_csv'),
     path('update/', update, name='update'),
+    path('todatabase/', columnas_seleccionadas, name='columnas_seleccionadas')
 ]
