@@ -1,24 +1,6 @@
 input{
     width: 200px;
-    border: 0cap;
-}
-
-fieldset {
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: fit-content; 
-    max-width: 450px;
-}
-
-legend {
-    font-size: 16px;
-    font-weight: bold;
-}
-
-label {
-    display: inline-block;
+    border: 0px;
 }
 
 

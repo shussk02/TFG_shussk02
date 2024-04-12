@@ -3,7 +3,8 @@ from .views import *
 
 urlpatterns = [
     path('index/',index, name='index'),
-    path('upload/', cargar_csv, name='cargar_csv'),
-    path('load/', mostrar_csv, name='mostrar_csv'),
+    path('', cargar_csv, name='cargar_csv'),
+    path('view/', mostrar_csv, name='mostrar_csv'),
+    path('edit/', modificar_csv, name='modificar_csv'),
     path('update/', update, name='update'),
 ]

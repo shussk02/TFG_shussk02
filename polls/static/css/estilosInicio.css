@@ -1,0 +1,21 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid black; 
+}
+
+
+
+.centrarHeader{
+    font-weight: bold;
+    text-align: center;
+}
+
+.centrarData{
+    text-align: center;
+}
+
+button{
+    margin-top: 10px;
+}
+

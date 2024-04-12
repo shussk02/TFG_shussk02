@@ -34,7 +34,7 @@ def cargar_csv(request):
                 # Guardo la lista de diccionarios en la sesión
                 request.session['df'] = df_dict
                 
-                # Se redirige al usuario a la vista 'mostrar_csv' para mostrar los datos del CSV
+                # Se redirige al usuario a la vista 'modificar_csv' para mostrar los datos del CSV
                 return redirect('mostrar_csv')
             
             except (pd.errors.EmptyDataError, pd.errors.ParserError):
@@ -48,7 +48,7 @@ def cargar_csv(request):
     # Se renderiza el template 'cargar_csv.html' con el formulario
     return render(request, 'cargar_csv.html', {'form': form})
 
-# Vista para mostrar el archivo CSV cargado
+
 def mostrar_csv(request):
 
     # Obtengo el DataFrame almacenado en la sesión del usuario
@@ -64,8 +64,32 @@ def mostrar_csv(request):
         columnas = df.columns.tolist()
         datos = df.values.tolist()
 
-        # Se renderiza la plantilla 'mostrar_csv.html' con los datos del DataFrame
-        return render(request, 'mostrar_csv.html', {'columnas': columnas, 'datos': datos})
+        # Se renderiza la plantilla 'vista_modificable_csv.html' con los datos del DataFrame
+        return render(request, 'vista_previa_csv.html', {'columnas': columnas, 'datos': datos})
+    else:
+        # Si no hay un DataFrame en la sesión, se redirige al usuario a la vista 'cargar_csv'
+        return redirect('cargar_csv')
+
+
+
+# Vista para modificar el archivo CSV cargado
+def modificar_csv(request):
+
+    # Obtengo el DataFrame almacenado en la sesión del usuario
+    df_dict = request.session.get('df')
+    
+    # Se verifica si hay un DataFrame almacenado en la sesión
+    if df_dict is not None:
+
+        # Convierto la lista de diccionarios en un DataFrame
+        df = pd.DataFrame(df_dict)
+        
+        # Saco los nombres de las columnas y los datos de la tabla
+        columnas = df.columns.tolist()
+        datos = df.values.tolist()
+
+        # Se renderiza la plantilla 'vista_modificable_csv.html' con los datos del DataFrame
+        return render(request, 'vista_modificable_csv.html', {'columnas': columnas, 'datos': datos})
     else:
         # Si no hay un DataFrame en la sesión, se redirige al usuario a la vista 'cargar_csv'
         return redirect('cargar_csv')
@@ -73,6 +97,7 @@ def mostrar_csv(request):
 
 def update(request):
     if request.method == 'POST':
+
         # Obtener los nuevos nombres de las columnas del formulario
         columnas_actualizadas = [request.POST[f'header_{i}'] for i in range(len(request.POST)) if f'header_{i}' in request.POST]
 
@@ -89,7 +114,7 @@ def update(request):
             # Guardar el DataFrame actualizado en la sesión
             request.session['df'] = df.to_dict(orient='records')
 
-        # Redirigir de vuelta a la vista mostrar_csv para mostrar los cambios
+        # Redirigir de vuelta a la vista modificar_csv para mostrar los cambios
         return redirect('mostrar_csv')
     
     else:

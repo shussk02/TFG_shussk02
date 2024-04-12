@@ -10,19 +10,9 @@
 </head>
 
 <body>
-    <h1>Contenido del archivo CSV</h1>
+    <h1>Nombres columnas modificables </h1>
     <form method="post" action="{% url 'update' %}">
         {% csrf_token %}
-        <fieldset>
-            <legend>Seleccionar columnas a almacenar:</legend>
-            <div class="checkbox-container">
-                {% for header in columnas %}
-                <div class="checkbox-item">
-                    <input type="checkbox" id="header_{{ forloop.counter0 }}" name="columna{{ forloop.counter0 }}" value="{{ header }}">
-                </div>
-                {% endfor %}
-            </div>
-        </fieldset>
         <table border="1">
             <thead>
                 <tr>
@@ -45,10 +35,6 @@
         </table>
         <button type="submit">Guardar cambios</button>
     </form>
-    
-    <a href="{% url 'cargar_csv' %}">
-        <button>Cargar nuevo CSV</button>
-    </a>
     
 </body>
 
