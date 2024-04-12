@@ -18,7 +18,7 @@
             <div class="checkbox-container">
                 {% for header in columnas %}
                 <div class="checkbox-item">
-                    <input type="checkbox" id="header_{{ forloop.counter0 }}" name="columnas" value="{{ header }}">
+                    <input type="checkbox" id="header_{{ forloop.counter0 }}" name="columna{{ forloop.counter0 }}" value="{{ header }}">
                 </div>
                 {% endfor %}
             </div>
@@ -36,8 +36,8 @@
                 {% for row in datos %}
                 <tr >
                     {% for value in row %}
-                    <td ><input class="centrarData" type="text" name="fila{{ forloop.parentloop.counter0 }}_columna{{ forloop.counter0 }}"
-                            value="{{ value }}"></td>
+                    <td class="centrarData">{{ value }}</td>
+                            
                     {% endfor %}
                 </tr>
                 {% endfor %}

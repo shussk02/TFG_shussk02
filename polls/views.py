@@ -19,7 +19,7 @@ def cargar_csv(request):
         
         # Verificar si el formulario es válido
         if form.is_valid():
-            
+
             # Obtener el archivo CSV y el separador del formulario válido
             archivo_csv = request.FILES['archivo_csv']
             separador = form.cleaned_data['separador']
@@ -73,28 +73,25 @@ def mostrar_csv(request):
 
 def update(request):
     if request.method == 'POST':
+        # Obtener los nuevos nombres de las columnas del formulario
+        columnas_actualizadas = [request.POST[f'header_{i}'] for i in range(len(request.POST)) if f'header_{i}' in request.POST]
 
-        # Consigo los datos del formulario
-        columnas_actualizadas = []
-        datos_actualizados = []
-        for key, value in request.POST.items():
-            if key.startswith('header_'):
-                columnas_actualizadas.append(value)
-            if key.startswith('fila'):
-                datos_actualizados.append(value)
+        # Obtener los datos originales del DataFrame de la sesión
+        df_dict = request.session.get('df')
 
-        # Reorganizo los datos actualizados en una estructura de tabla
-        num_columnas = len(columnas_actualizadas)
-        datos_organizados = [datos_actualizados[i:i+num_columnas] for i in range(0, len(datos_actualizados), num_columnas)]
+        if df_dict is not None:
+            # Crear un DataFrame con los datos originales
+            df = pd.DataFrame(df_dict)
 
+            # Renombrar las columnas con los nuevos nombres
+            df.columns = columnas_actualizadas
 
-        # Actualizo el DataFrame en la sesión
-        df_actualizado = pd.DataFrame(datos_organizados, columns=columnas_actualizadas)
-        request.session['df'] = df_actualizado.to_dict(orient='records')
+            # Guardar el DataFrame actualizado en la sesión
+            request.session['df'] = df.to_dict(orient='records')
 
-        # Se redirige de vuelta a la vista mostrar_csv para mostrar los cambios
+        # Redirigir de vuelta a la vista mostrar_csv para mostrar los cambios
         return redirect('mostrar_csv')
     
     else:
-        # Si no es una solicitud POST, se redirige a la página de inicio o mostrar un mensaje de error
+        # Si no es una solicitud POST, redirigir a la página de inicio o mostrar un mensaje de error
         return redirect('cargar_csv')
