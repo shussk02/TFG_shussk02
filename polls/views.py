@@ -127,9 +127,10 @@ def columnas_seleccionadas(request):
 
         # Obtener los nombres de las columnas seleccionadas
 
-        selected = [request.POST[f'columna{i}'] for i in range(len(request.POST)) if f'columna{i}' in request.POST]
+        selected = [request.POST[key] for key in request.POST.keys() if key.startswith('columna')]
 
         if (selected):
+
 
             # Obtener los datos originales del DataFrame de la sesión
             df_dict = request.session.get('df')
@@ -141,6 +142,12 @@ def columnas_seleccionadas(request):
 
                 # Filtramos el dataframe con los nombres de las columnas obtenidas
                 df_filtrado = df[selected]
+
+                # Convertir el DataFrame filtrado a un nuevo diccionario
+                df_filtrado_dict = df_filtrado.to_dict(orient='records')
+
+                # Guardar el nuevo diccionario en la sesión con una clave diferente
+                request.session['df_selected'] = df_filtrado_dict
 
                 # Saco los nombres de las columnas y los datos correspondientes a estas
                 columnas = df_filtrado.columns.tolist()
