@@ -4,4 +4,3 @@ psycopg2-binary>=2.8
 pandas
 mysqlclient
 django-import-export
-dynamic-django-models
