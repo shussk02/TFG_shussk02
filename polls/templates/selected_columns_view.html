@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mostrar CSV</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/estilosInicio.css' %}">
+
+</head>
+
+<body>
+    <h1>Columnas seleccionadas para almacenar en la base de datos</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                {% for columna, tipo in columnas_con_tipos %}
+
+                <div>
+                    <th class="centrarHeader">{{ columna }}
+                        {% if tipo == 'bool' %}
+                            (Tinyint)
+                            {% elif tipo == 'int64' %}
+                            (Integer)
+                            {% elif tipo == 'float64' %}
+                            (Double)
+                            {% elif tipo == 'object' %}
+                            (Varchar)
+                            {% elif tipo == 'datetime64[ns]' %}
+                            (Datetime)
+                            {% elif tipo == 'char' %}
+                            (Char)
+                            {% elif tipo == 'date' %}
+                            (Date)
+                            {% elif tipo == 'time' %}
+                            (Time)
+                            {% elif tipo == 'timestamp' %}
+                            (Timestamp)
+                            {% elif tipo == 'decimal' %}
+                            (Decimal)
+                            {% endif %} </th>
+                </div>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in datos %}
+            <tr>
+                {% for value in row %}
+                <td class="centrarData">{{ value }}</td>
+
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="boton-container">
+        <a href="{% url 'mostrar_csv' %}">
+            <button type="button">Retroceder</button>
+        </a>
+    </div>
+</body>
+
+</html>

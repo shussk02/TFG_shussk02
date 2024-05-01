@@ -18,11 +18,33 @@
         <table border="1">
             <thead>
                 <tr>
-                    {% for header in columnas %}
-
+                    {% for columna, tipo in columnas_con_tipos %}
                     <div>
-                        <th class="centrarHeader"> <input type="checkbox" id="header_{{ forloop.counter0 }}"
-                                name="columna{{ forloop.counter0 }}" value="{{ header }}">{{ header }} </th>
+                        <th class="centrarHeader">
+                            <input type="checkbox" id="header_{{ forloop.counter0 }}"
+                                name="columna{{ forloop.counter0 }}" value="{{ columna }}">{{ columna }}
+                            {% if tipo == 'bool' %}
+                            (Tinyint)
+                            {% elif tipo == 'int64' %}
+                            (Integer)
+                            {% elif tipo == 'float64' %}
+                            (Double)
+                            {% elif tipo == 'object' %}
+                            (Varchar)
+                            {% elif tipo == 'datetime64[ns]' %}
+                            (Datetime)
+                            {% elif tipo == 'char' %}
+                            (Char)
+                            {% elif tipo == 'date' %}
+                            (Date)
+                            {% elif tipo == 'time' %}
+                            (Time)
+                            {% elif tipo == 'timestamp' %}
+                            (Timestamp)
+                            {% elif tipo == 'decimal' %}
+                            (Decimal)
+                            {% endif %}
+                        </th>
                     </div>
                     {% endfor %}
                 </tr>

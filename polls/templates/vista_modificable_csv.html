@@ -6,28 +6,49 @@
     <meta charset="UTF-8">
     <title>Mostrar CSV</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/estilos.css' %}">
-    
+
+    <script>
+        {% if messages %}
+        window.onload = function() {
+            {% for message in messages %}
+            alert("{{ message }}");
+            {% endfor %}
+        }
+        {% endif %}
+    </script>
+
 </head>
 
 <body>
     <h1>Modificar nombres de columnas </h1>
+    <!-- Agregar esta parte para mostrar mensajes -->
+    
     <form method="post" action="{% url 'update' %}">
         {% csrf_token %}
         <table border="1">
             <thead>
                 <tr>
-                    {% for header in columnas %}
-                    <th><input class="centrarHeader" type="text" name="header_{{ forloop.counter0 }}"
-                            value="{{ header }}"></th>
+                    {% for columna, tipo_actual in columnas_con_tipos %}
+                    <th>
+                        <input class="centrarHeader" type="text" name="header_{{ forloop.counter0 }}"
+                            value="{{ columna }}">
+                        <select name="tipo_{{ forloop.counter0 }}">
+                            <option value="bool" {% if tipo_actual == 'bool' %}selected{% endif %}>Tinyint</option>
+                            <option value="object" {% if tipo_actual == 'object' %}selected{% endif %}>Varchar</option>
+                            <option value="int64" {% if tipo_actual == 'int64' %}selected{% endif %}>Integer</option>
+                            <option value="float64" {% if tipo_actual == 'float64' %}selected{% endif %}>Double</option>
+                            <option value="datetime64" {% if tipo_actual == 'datetime64[ns]' %}selected{% endif %}>DateTime</option>
+                        </select>
+                    </th>
                     {% endfor %}
                 </tr>
             </thead>
             <tbody>
                 {% for row in datos %}
-                <tr >
+                <tr>
                     {% for value in row %}
                     <td class="centrarData">{{ value }}</td>
-                            
+
                     {% endfor %}
                 </tr>
                 {% endfor %}
@@ -35,7 +56,10 @@
         </table>
         <button type="submit">Guardar cambios</button>
     </form>
-    
+
 </body>
+
+
+
 
 </html>

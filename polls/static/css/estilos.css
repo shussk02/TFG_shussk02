@@ -1,7 +1,7 @@
 table {
-    width: 100%;
+    width: 80%;
     border-collapse: collapse;
-    border: 2px solid black; 
+    border: 2px solid black;
 }
 
 input[type="text"] {
@@ -31,4 +31,5 @@ input[type="text"] {
 
 button{
     margin-top: 10px;
+    margin-right: 10px;
 }
