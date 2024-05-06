@@ -6,11 +6,46 @@
     <meta charset="UTF-8">
     <title>Mostrar CSV</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/estilosInicio.css' %}">
-
+    <script>
+        {% if messages %}
+        window.onload = function() {
+            {% for message in messages %}
+            alert("{{ message }}");
+            {% endfor %}
+        }
+        {% endif %}
+    </script>
 </head>
 
 <body>
     <h1>Columnas seleccionadas para almacenar en la base de datos</h1>
+
+    <div>
+
+        <!-- Formulario para seleccionar el modelo -->
+        <form method="post" action="{% url 'insertar_datos' %}" style="display: inline;">
+            {% csrf_token %}
+            {% if tablas %}
+            <label for="tabla">Selecciona una tabla:</label>
+            <select name="tabla" id="tabla">
+                {% for tabla in tablas %}
+                <option value="{{ tabla }}">{{ tabla }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Insertar Datos</button>
+            {% else %}
+            <p>No hay tablas disponibles.</p>
+            {% endif %}
+        </form>
+        
+        <div style="display: inline;margin-left: 30px;">
+            <a href="{% url 'mostrar_csv' %}">
+                <button type="button">Retroceder</button>
+            </a>
+        </div>
+        
+    </div>
+
     <table border="1">
         <thead>
             <tr>
@@ -19,26 +54,26 @@
                 <div>
                     <th class="centrarHeader">{{ columna }}
                         {% if tipo == 'bool' %}
-                            (Tinyint)
-                            {% elif tipo == 'int64' %}
-                            (Integer)
-                            {% elif tipo == 'float64' %}
-                            (Double)
-                            {% elif tipo == 'object' %}
-                            (Varchar)
-                            {% elif tipo == 'datetime64[ns]' %}
-                            (Datetime)
-                            {% elif tipo == 'char' %}
-                            (Char)
-                            {% elif tipo == 'date' %}
-                            (Date)
-                            {% elif tipo == 'time' %}
-                            (Time)
-                            {% elif tipo == 'timestamp' %}
-                            (Timestamp)
-                            {% elif tipo == 'decimal' %}
-                            (Decimal)
-                            {% endif %} </th>
+                        (Tinyint)
+                        {% elif tipo == 'int64' %}
+                        (Integer)
+                        {% elif tipo == 'float64' %}
+                        (Double)
+                        {% elif tipo == 'object' %}
+                        (Varchar)
+                        {% elif tipo == 'datetime64[ns]' %}
+                        (Datetime)
+                        {% elif tipo == 'char' %}
+                        (Char)
+                        {% elif tipo == 'date' %}
+                        (Date)
+                        {% elif tipo == 'time' %}
+                        (Time)
+                        {% elif tipo == 'timestamp' %}
+                        (Timestamp)
+                        {% elif tipo == 'decimal' %}
+                        (Decimal)
+                        {% endif %} </th>
                 </div>
                 {% endfor %}
             </tr>
@@ -55,11 +90,23 @@
         </tbody>
     </table>
 
-    <div class="boton-container">
-        <a href="{% url 'mostrar_csv' %}">
-            <button type="button">Retroceder</button>
-        </a>
+    <!-- Botón para crear una nueva tabla -->
+    <button class="boton-nueva-tabla" onclick="mostrarFormulario()">Nueva Tabla</button>
+
+    <!-- Formulario para crear una nueva tabla -->
+    <div id="formulario-nueva-tabla">
+        <button class="cerrar-btn" onclick="cerrarFormulario()">Cerrar</button>
+        <h2>Crear Nueva Tabla</h2>
+        <form method="post" action="{% url 'nueva_tabla' %}">
+            {% csrf_token %}
+            <label for="nombre_tabla">Nombre de la nueva tabla:</label>
+            <input type="text" name="nombre_tabla" id="nombre_tabla">
+            <button type="submit">Crear Tabla</button>
+        </form>
     </div>
+
+
+    <script src="{% static 'js/formulario.js' %}"></script>
 </body>
 
 </html>

@@ -20,9 +20,10 @@ button{
     margin-right: 10px;
 }
 
-.boton-container {
-    display: flex; 
+div{
+    margin-bottom: 10px;
 }
+
 
 .checkbox-container {
     display: flex;
@@ -31,4 +32,26 @@ button{
 .checkbox-item {
     align-self: center;
     transform: scale(1.5);
+}
+
+
+
+#formulario-nueva-tabla {
+    /* Estilos del formulario de nueva tabla */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border: 1px solid black;
+    z-index: 1000; /* Asegura que el formulario esté en la parte superior */
+    display: none;
+}
+
+.cerrar-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
 }

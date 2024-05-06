@@ -7,7 +7,10 @@ import pandas as pd
 import datetime
 from django.contrib import messages
 from .forms import UploadFileForm
-#from .utils import *
+from .utils import *
+from django.db import connection
+from django.core.management import call_command
+from django.apps import apps
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
@@ -284,14 +287,201 @@ def columnas_seleccionadas(request):
                 columnas = df_filtrado.columns.tolist()
                 datos = df_filtrado.values.tolist()
 
-                #Modelo_df = crear_modelo_desde_dataframe(df)
+                
                 # Obtener tipos de datos de cada columna
                 tipos_de_dato = df_filtrado.dtypes
+
+
 
                 # Zipear columnas y tipos_de_dato
                 columnas_con_tipos = zip(columnas, tipos_de_dato)
 
-            return render(request, 'selected_columns_view.html', {'columnas_con_tipos': columnas_con_tipos, 'datos': datos})
+                tablas = obtener_tablas_disponibles()
+            return render(request, 'selected_columns_view.html', {'columnas_con_tipos': columnas_con_tipos, 'datos': datos, 'tablas': tablas})
 
         else:
+    
             return redirect('mostrar_csv')
+    else:
+
+        df_dict = request.session.get('df_selected')
+
+        if df_dict is not None:
+
+            # Crear un DataFrame con los datos originales
+            df = pd.DataFrame(df_dict)
+            
+            datetime_columns_dict = request.session.get('datetime_columns', {})
+
+            for col, values in datetime_columns_dict.items():
+                if col in df.columns:
+                    # Convertir los valores a datetime si la columna existe en el DataFrame
+                    df[col] = pd.to_datetime(df[col])
+                else:
+                    pass
+
+            # Saco los nombres de las columnas y los datos correspondientes a estas
+            columnas = df.columns.tolist()
+            datos = df.values.tolist()
+
+            
+            # Obtener tipos de datos de cada columna
+            tipos_de_dato = df.dtypes
+            
+            # Zipear columnas y tipos_de_dato
+            columnas_con_tipos = zip(columnas, tipos_de_dato)
+
+            tablas = obtener_tablas_disponibles()
+        return render(request, 'selected_columns_view.html', {'columnas_con_tipos': columnas_con_tipos, 'datos': datos, 'tablas': tablas})
+
+
+def obtener_tablas_disponibles():
+    with connection.cursor() as cursor:
+        # Ejecutar la consulta para obtener todas las tablas en la base de datos
+        cursor.execute("SHOW TABLES LIKE 'csv_%'")
+        
+        # Obtener los resultados de la consulta
+        resultados = cursor.fetchall()
+        
+        # Extraer los nombres de las tablas de los resultados
+        tablas = [fila[0] for fila in resultados]
+        
+    return tablas
+
+def nueva_tabla(request):
+
+    if request.method == 'POST':
+        # Obtener el nombre de la tabla del formulario
+        nombre_tabla = "csv_" + request.POST.get('nombre_tabla')
+
+        df_dict = request.session.get('df_selected')
+
+        if df_dict is not None:
+
+                # Crear un DataFrame con los datos originales
+            df = pd.DataFrame(df_dict)
+
+            datetime_columns_dict = request.session.get('datetime_columns', {})
+
+            for col, values in datetime_columns_dict.items():
+                if col in df.columns:
+                    # Convertir los valores a datetime si la columna existe en el DataFrame
+                    df[col] = pd.to_datetime(df[col])
+                else:
+                    pass
+
+            # Convertir a minúsculas para usarlo como nombre de tabla en la base de datos
+            table_name = nombre_tabla.lower()
+
+            # Obtener una lista de nombres de tablas en la base de datos
+            existing_tables = obtener_tablas_disponibles()
+
+
+            # Verificar si la tabla ya existe en la base de datos
+            if table_name not in existing_tables:
+                # Si la tabla no existe, crearla utilizando SQL
+                with connection.cursor() as cursor:
+
+                    # Define la sentencia SQL para crear la tabla
+                    sql_columns = ",\n".join([f"{column} {map_dtype_to_field(df.dtypes[column])}" for column in df.columns])
+                    sql_statement = f"""
+                        CREATE TABLE {table_name} (
+                            {sql_columns}
+                        )
+                    """
+                    # Ejecuta la sentencia SQL
+                    cursor.execute(sql_statement)
+                # Después de crear la tabla, redirige a alguna página o realiza alguna acción
+                return redirect('columnas_seleccionadas')
+
+                # Si la tabla ya existe, redirige a alguna página o realiza alguna acción
+            return redirect('columnas_seleccionadas')
+
+            # Si la tabla ya existe, redirigir a alguna página o realizar alguna acción
+        return redirect('columnas_seleccionadas')
+
+
+def insertar_datos(request):
+    if request.method == 'POST':
+        # Obtener el nombre de la tabla del formulario
+        nombre_tabla = request.POST.get('tabla')
+        
+        df_dict = request.session.get('df_selected')
+        
+        if df_dict is not None:
+            # Crear un DataFrame con los datos originales
+            df = pd.DataFrame(df_dict)
+
+            datetime_columns_dict = request.session.get('datetime_columns', {})
+
+            for col, values in datetime_columns_dict.items():
+                if col in df.columns:
+                    # Convertir los valores a datetime si la columna existe en el DataFrame
+                    df[col] = pd.to_datetime(df[col])
+                else:
+                    pass
+
+            # Obtener las columnas existentes en la tabla de la base de datos
+            existing_columns_info = obtener_columnas_tabla(nombre_tabla)
+            existing_columns = {col[0]: col[1] for col in existing_columns_info}
+
+            # Verificar si todas las columnas del DataFrame existen en la tabla
+            for col in df.columns:
+                if col not in existing_columns:
+                    # Si la columna no existe en la tabla, notificar al usuario y redirigir
+                    messages.error(request, f"La columna '{col}' del DataFrame no existe en la tabla de la base de datos. Por favor, elija otra tabla.")
+                    return redirect('columnas_seleccionadas')
+                elif not tipo_datos_coinciden(df[col].dtype, existing_columns[col]):
+                    # Si los tipos de datos no coinciden, notificar al usuario y redirigir
+                    messages.error(request, f"El tipo de datos de la columna '{col}' del DataFrame no coincide con la tabla de la base de datos. Por favor, elija otra tabla.")
+                    return redirect('columnas_seleccionadas')
+
+            # Generar el comando SQL para insertar los datos
+            columns = ', '.join(df.columns)
+            placeholders = ', '.join(['%s'] * len(df.columns))
+            sql = f"INSERT INTO {nombre_tabla} ({columns}) VALUES ({placeholders})"
+
+            # Obtener los valores de las filas del DataFrame para la inserción
+            values = [tuple(row) for row in df.to_numpy()]
+
+            # Ejecutar la consulta SQL para insertar los datos
+            with connection.cursor() as cursor:
+                try:
+                    cursor.executemany(sql, values)
+                    connection.commit()
+                except Exception as e:
+                    # Manejo de errores si ocurre algún problema al insertar los datos
+                    messages.error(request, f"Error al insertar datos en la tabla {nombre_tabla}")
+                    return redirect('columnas_seleccionadas')
+
+                # Si la inserción fue exitosa, redirigir a alguna página
+            return redirect('columnas_seleccionadas')
+    
+    # Redirigir si no se proporcionó un método POST o si no se encontraron datos en el DataFrame
+    return redirect('columnas_seleccionadas')
+
+
+def obtener_columnas_tabla(nombre_tabla):
+    """
+    Obtener las columnas existentes en una tabla de la base de datos junto con su tipo de datos.
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(f"SHOW COLUMNS FROM {nombre_tabla}")
+        columnas_info = cursor.fetchall()
+        columnas = [(fila[0], fila[1]) for fila in columnas_info]
+        print(columnas)
+    return columnas
+
+def tipo_datos_coinciden(dtype_pandas, tipo_mariadb):
+    if dtype_pandas == 'int64':
+        return tipo_mariadb.startswith('int')
+    elif dtype_pandas == 'float64':
+        return tipo_mariadb.startswith('double')
+    elif dtype_pandas == 'datetime64[ns]':
+        return tipo_mariadb.startswith('datetime')
+    elif dtype_pandas == 'bool':
+        return tipo_mariadb.startswith('tinyint')
+    elif dtype_pandas == 'object':
+        return tipo_mariadb.startswith('varchar')
+    else:
+        return False
