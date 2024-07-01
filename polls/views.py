@@ -44,7 +44,8 @@ def cargar_csv(request):
                     request.session['datetime_columns'] = datetime_columns_dict
 
                 else:
-                    request.session['datetime_columns'].clear()
+                    if 'datetime_columns' in request.session:
+                        request.session['datetime_columns'].clear()
 
                 # Convierto el DataFrame en una lista de diccionarios
                 df_dict = df.to_dict(orient='records')
@@ -177,7 +178,8 @@ def update(request):
                     request.session['datetime_columns'] = datetime_columns_dict
 
                 else:
-                    request.session['datetime_columns'].clear()
+                    if 'datetime_columns' in request.session:
+                        request.session['datetime_columns'].clear()
 
                 
                 # Guardar el DataFrame actualizado en la sesión
@@ -469,7 +471,6 @@ def obtener_columnas_tabla(nombre_tabla):
         cursor.execute(f"SHOW COLUMNS FROM {nombre_tabla}")
         columnas_info = cursor.fetchall()
         columnas = [(fila[0], fila[1]) for fila in columnas_info]
-        print(columnas)
     return columnas
 
 def tipo_datos_coinciden(dtype_pandas, tipo_mariadb):
