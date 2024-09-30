@@ -1,0 +1,41 @@
+.container {
+    max-width: 800px;
+    margin: auto;
+}
+
+
+.tabla-container {
+    margin-top: 20px;
+}
+
+.nueva-tabla-btn {
+    margin-top: 20px;
+}
+
+#formulario-nueva-tabla {
+    margin-top: 20px;
+    display: none;
+}
+
+.card {
+    background-color: #f8f9fa;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: #007bff;
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-footer {
+    background-color: #f8f9fa;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+}

@@ -7,54 +7,75 @@
     <title>Mostrar CSV</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'css/estilosInicio.css' %}">
+    
+    <script>
+        {% if messages %}
+        window.onload = function() {
+            {% for message in messages %}
+            alert("{{ message }}");
+            {% endfor %}
+        }
+        {% endif %}
+    </script>
 </head>
 
 <body>
+    <div class="banner">
+        <h1 class="my-4">Visualización del archivo cargado</h1>
+    </div>
     <div class="container mt-4">
-        <h1 class="mb-4">Datos obtenidos del CSV</h1>
-
-        <form method="post" action="{% url 'columnas_seleccionadas' %}">
-            {% csrf_token %}
-            <table class="table table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        {% for columna, tipo in columnas_con_tipos %}
-                        <th class="text-center">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="header_{{ forloop.counter0 }}"
-                                    name="columna{{ forloop.counter0 }}" value="{{ columna }}">
-                                <label class="form-check-label" for="header_{{ forloop.counter0 }}">
-                                    {{ columna }}
-                                    {% if tipo == 'bool' %}
-                                    (Tinyint)
-                                    {% elif tipo == 'int64' %}
-                                    (Integer)
-                                    {% elif tipo == 'float64' %}
-                                    (Double)
-                                    {% elif tipo == 'object' %}
-                                    (Varchar)
-                                    {% elif tipo == 'datetime64[ns]' %}
-                                    (Datetime)
-                                    {% endif %}
-                                </label>
-                            </div>
-                        </th>
+        <div class="table-responsive">
+            <form method="post" action="{% url 'columnas_seleccionadas' %}">
+                {% csrf_token %}
+                <table class="table table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            {% for columna, tipo in columnas_con_tipos %}
+                            <th class="text-center">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="header_{{ forloop.counter0 }}"
+                                        name="columna{{ forloop.counter0 }}" value="{{ columna }}">
+                                    <label class="form-check-label" for="header_{{ forloop.counter0 }}">
+                                        {{ columna }}
+                                        {% if tipo == 'bool' %}
+                                        (Tinyint)
+                                        {% elif tipo == 'int64' %}
+                                        (Integer)
+                                        {% elif tipo == 'float64' %}
+                                        (Double)
+                                        {% elif tipo == 'object' %}
+                                        (Varchar)
+                                        {% elif tipo == 'datetime64[ns]' %}
+                                        (Datetime)
+                                        {% endif %}
+                                    </label>
+                                </div>
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in datos %}
+                        <tr>
+                            {% for value in row %}
+                            <td class="text-center">
+                                {% if value is None %}
+                                -
+                                {% elif value == value and value != "NaT" %}
+                                {{ value }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
                         {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in datos %}
-                    <tr>
-                        {% for value in row %}
-                        <td class="text-center">{{ value }}</td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
 
-            <button type="submit" class="btn btn-primary mt-3">Confirmar selección</button>
-        </form>
+                <button type="submit" class="btn btn-primary mt-3">Confirmar selección</button>
+            </form>
+        </div>
 
         <div class="mt-3">
             <a href="{% url 'modificar_csv' %}" class="btn btn-secondary">Modificar columnas</a>

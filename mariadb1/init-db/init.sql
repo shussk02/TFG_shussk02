@@ -1,0 +1,8 @@
+CREATE USER repl_user@'%' IDENTIFIED BY 'shussk02';
+GRANT REPLICATION SLAVE ON *.* TO repl_user@'%';
+
+CREATE USER 'maxuser'@'%' IDENTIFIED BY 'shussk02';
+GRANT ALL PRIVILEGES ON *.* TO 'maxuser'@'%' WITH GRANT OPTION;
+
+CREATE USER 'maxmon'@'%' IDENTIFIED BY 'shussk02';
+GRANT ALL PRIVILEGES ON *.* TO 'maxmon'@'%' WITH GRANT OPTION;

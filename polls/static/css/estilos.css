@@ -1,7 +1,33 @@
 table {
-    width: 80%;
+    width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     border: 2px solid black;
+}
+
+.banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+    color: white;
+    padding: 20px;
+}
+
+.banner h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+.container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+th, td {
+    word-wrap: break-word;
 }
 
 input[type="text"] {

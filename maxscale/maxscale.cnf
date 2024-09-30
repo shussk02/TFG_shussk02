@@ -30,7 +30,7 @@ servers=Primary, Replica, Replica-2
 user=maxmon
 password=shussk02
 #
-monitor_interval=50ms
+monitor_interval=6ms
 verify_master_failure=true
 enforce_read_only_slaves=true
 auto_failover=true

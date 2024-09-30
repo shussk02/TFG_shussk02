@@ -1,4 +1,5 @@
 import io
+from django.conf import settings
 from django.views.generic.list import ListView
 from pyexpat.errors import *
 from django.http import HttpResponse
@@ -25,7 +26,6 @@ def cargar_csv(request):
         
         # Verificar si el formulario es válido
         if form.is_valid():
-
             # Obtener el archivo CSV y el separador del formulario válido
             archivo_csv = request.FILES['archivo_csv']
             separador = form.cleaned_data['separador']
@@ -64,11 +64,46 @@ def cargar_csv(request):
     else:
         form = UploadFileForm()
     
+    # Añadir el host y el puerto al contexto
+    context = {
+        'form': form,
+        'host': settings.DATABASES['default']['HOST'],
+        'puerto': settings.DATABASES['default']['PORT'],
+        'user': settings.DATABASES['default']['USER'],
+        'password': settings.DATABASES['default']['PASSWORD'],
+        'hosts': [
+            {'name': 'max_host', 'port': 4007, 'user': 'maxuser'},
+            {'name': 'mariadb1_host', 'port': 3306, 'user': 'root'},
+            {'name': 'mariadb2_host', 'port': 3306, 'user': 'root'},
+            {'name': 'mariadb3_host', 'port': 3306, 'user': 'root'},
+        ]
+    }
+    
     # Se renderiza el template 'cargar_csv.html' con el formulario
-    return render(request, 'cargar_csv.html', {'form': form})
+    return render(request, 'cargar_csv.html', context)
 
 
+def cambiar_host_puerto(request):
+    if request.method == 'POST':
+        nuevo_host = request.POST.get('host')
+        nuevo_puerto = request.POST.get('puerto')
+        nuevo_usuario = request.POST.get('usuario')
+        nueva_contrasena = request.POST.get('password')
+        
+        if nuevo_host and nuevo_puerto and nuevo_usuario and nueva_contrasena:
+            settings.DATABASES['default']['HOST'] = nuevo_host
+            settings.DATABASES['default']['PORT'] = nuevo_puerto
+            settings.DATABASES['default']['USER'] = nuevo_usuario
+            settings.DATABASES['default']['PASSWORD'] = nueva_contrasena
+            messages.success(request, "Host, puerto, usuario y contraseña actualizados exitosamente.")
+        else:
+            messages.error(request, "Debe proporcionar el host, puerto, usuario y contraseña.")
+        
+        return redirect('cargar_csv')  # Redirige a la página de carga de CSV después de actualizar
 
+    return render(request, 'cargar_csv.html')
+
+    
 def mostrar_csv(request):
     # Obtengo el DataFrame almacenado en la sesión del usuario
     df_dict = request.session.get('df')
@@ -85,10 +120,12 @@ def mostrar_csv(request):
         for col, values in datetime_columns_dict.items():
             if col in df.columns:
                 # Convertir los valores a datetime si la columna existe en el DataFrame
-                df[col] = pd.to_datetime(df[col])
+                df[col] = pd.to_datetime(df[col], errors='coerce')
             else:
             # Si la columna no existe, la agregamos al DataFrame y luego convertimos los valores a datetime
                 pass
+
+        df = df.where(pd.notnull(df), None)
 
         # Saco los nombres de las columnas y los datos de la tabla
         datos = df.values.tolist()
@@ -124,10 +161,11 @@ def modificar_csv(request):
         for col, values in datetime_columns_dict.items():
             if col in df.columns:
                 # Convertir los valores a datetime si la columna existe en el DataFrame
-                df[col] = pd.to_datetime(df[col])
+                df[col] = pd.to_datetime(df[col], errors='coerce')
             else:
                 pass
         
+        df = df.where(pd.notnull(df), None)
         # Saco los nombres de las columnas y los datos de la tabla
         columnas = df.columns.tolist()
         datos = df.values.tolist()
@@ -158,7 +196,7 @@ def update(request):
 
             # Crear un DataFrame con los datos originales
             df = pd.DataFrame(df_dict)
-
+        
 
             try:
                 
@@ -419,9 +457,12 @@ def insertar_datos(request):
             for col, values in datetime_columns_dict.items():
                 if col in df.columns:
                     # Convertir los valores a datetime si la columna existe en el DataFrame
-                    df[col] = pd.to_datetime(df[col])
+                    df[col] = pd.to_datetime(df[col], errors='coerce')
                 else:
                     pass
+
+            # Convertir valores NaN y NaT a None
+            df = df.where(pd.notnull(df), None)
 
             # Obtener las columnas existentes en la tabla de la base de datos
             existing_columns_info = obtener_columnas_tabla(nombre_tabla)
@@ -451,16 +492,18 @@ def insertar_datos(request):
                 try:
                     cursor.executemany(sql, values)
                     connection.commit()
+                    messages.success(request, f"Datos insertados correctamente en la tabla {nombre_tabla}.")
                 except Exception as e:
                     # Manejo de errores si ocurre algún problema al insertar los datos
-                    messages.error(request, f"Error al insertar datos en la tabla {nombre_tabla}")
+                    messages.error(request, f"Error al insertar datos en la tabla {nombre_tabla}: {str(e)}")
                     return redirect('columnas_seleccionadas')
 
-                # Si la inserción fue exitosa, redirigir a alguna página
+            # Si la inserción fue exitosa, redirigir a alguna página
             return redirect('columnas_seleccionadas')
     
     # Redirigir si no se proporcionó un método POST o si no se encontraron datos en el DataFrame
     return redirect('columnas_seleccionadas')
+
 
 
 def obtener_columnas_tabla(nombre_tabla):
@@ -486,3 +529,5 @@ def tipo_datos_coinciden(dtype_pandas, tipo_mariadb):
         return tipo_mariadb.startswith('varchar')
     else:
         return False
+
+

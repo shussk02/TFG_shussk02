@@ -9,6 +9,7 @@ services:
       MYSQL_DATABASE: mydatabase
     volumes:
       - ./mariadb1/50-server.cnf:/etc/mysql/mariadb.conf.d/50-server.cnf
+      - ./mariadb1/init-db:/docker-entrypoint-initdb.d
     ports:
       - "13306:3306"
     networks:
@@ -24,6 +25,7 @@ services:
       MYSQL_ROOT_PASSWORD: shussk02
     volumes:
       - ./mariadb2/50-server.cnf:/etc/mysql/mariadb.conf.d/50-server.cnf
+      - ./mariadb2/init-db:/docker-entrypoint-initdb.d
     ports:
       - "23306:3306"
     networks:
@@ -38,6 +40,7 @@ services:
       MYSQL_ROOT_PASSWORD: shussk02
     volumes:
       - ./mariadb3/50-server.cnf:/etc/mysql/mariadb.conf.d/50-server.cnf
+      - ./mariadb3/init-db:/docker-entrypoint-initdb.d
     ports:
       - "33306:3306"
     networks:
@@ -52,6 +55,10 @@ services:
       - ./maxscale/maxscale.cnf:/etc/maxscale.cnf
     ports:
       - "4007:4007"
+    depends_on:
+      - mariadb1
+      - mariadb2
+      - mariadb3
     networks:
       mariadb_network:
         aliases:
@@ -60,13 +67,23 @@ services:
   app:
     build:
       context: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command:
+      - bash
+      - -c
+      - |
+        python manage.py makemigrations --no-input &&
+        python manage.py migrate polls 0008 --fake &&
+        python manage.py migrate --no-input &&
+        python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code
     ports:
       - "8000:8000"
     depends_on:
       - mariadb1
+      - mariadb2
+      - mariadb3
+      - maxscale
     networks:
       mariadb_network:
         aliases:

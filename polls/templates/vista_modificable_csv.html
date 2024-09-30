@@ -20,9 +20,10 @@
 </head>
 
 <body>
+    <div class="banner">
+        <h1 class="my-4">Modificar nombres y formato de datos de las columnas</h1>
+    </div>
     <div class="container mt-4">
-        <h1 class="mb-4">Modificar nombres de columnas</h1>
-        
         <form method="post" action="{% url 'update' %}">
             {% csrf_token %}
             <div class="table-responsive">
@@ -31,14 +32,16 @@
                         <tr>
                             {% for columna, tipo_actual in columnas_con_tipos %}
                             <th>
-                                <input class="form-control" type="text" name="header_{{ forloop.counter0 }}" value="{{ columna }}">
-                                <select class="form-control mt-2" name="tipo_{{ forloop.counter0 }}">
-                                    <option value="bool" {% if tipo_actual == 'bool' %}selected{% endif %}>Tinyint</option>
-                                    <option value="object" {% if tipo_actual == 'object' %}selected{% endif %}>Varchar</option>
-                                    <option value="int64" {% if tipo_actual == 'int64' %}selected{% endif %}>Integer</option>
-                                    <option value="float64" {% if tipo_actual == 'float64' %}selected{% endif %}>Double</option>
-                                    <option value="datetime64" {% if tipo_actual == 'datetime64[ns]' %}selected{% endif %}>DateTime</option>
-                                </select>
+                                <div class="form-group">
+                                    <input class="form-control" type="text" name="header_{{ forloop.counter0 }}" value="{{ columna }}">
+                                    <select class="form-control mt-2" name="tipo_{{ forloop.counter0 }}">
+                                        <option value="bool" {% if tipo_actual == 'bool' %}selected{% endif %}>Tinyint</option>
+                                        <option value="object" {% if tipo_actual == 'object' %}selected{% endif %}>Varchar</option>
+                                        <option value="int64" {% if tipo_actual == 'int64' %}selected{% endif %}>Integer</option>
+                                        <option value="float64" {% if tipo_actual == 'float64' %}selected{% endif %}>Double</option>
+                                        <option value="datetime64" {% if tipo_actual == 'datetime64[ns]' %}selected{% endif %}>DateTime</option>
+                                    </select>
+                                </div>
                             </th>
                             {% endfor %}
                         </tr>
@@ -47,7 +50,13 @@
                         {% for row in datos %}
                         <tr>
                             {% for value in row %}
+                            {% if value is None %}
+                            <td class="text-center"></td>
+                            {% elif value == value and value != "NaT" %}
                             <td class="text-center">{{ value }}</td>
+                            {% else %}
+                            <td class="text-center">-</td>
+                            {% endif %}
                             {% endfor %}
                         </tr>
                         {% endfor %}

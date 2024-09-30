@@ -39,9 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    
-    #'polls.apps.PollsConfig',
-    'polls',
+    'polls.apps.PollsConfig',
     'import_export',
 ]
 
