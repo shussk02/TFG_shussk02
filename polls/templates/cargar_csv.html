@@ -60,15 +60,33 @@
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="id_host">Host:</label>
-                            <input type="text" class="form-control" id="id_host" name="host" value="{{ host }}">
+                            <select class="form-control" id="id_host" name="host">
+                                {% for host in unique_hosts %}
+                                    <option value="{{ host }}" {% if host == selected_host %}selected{% endif %}>
+                                        {{ host }}
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="id_puerto">Puerto:</label>
-                            <input type="text" class="form-control" id="id_puerto" name="puerto" value="{{ puerto }}">
+                            <select class="form-control" id="id_puerto" name="puerto">
+                                {% for puerto in unique_ports %}
+                                    <option value="{{ puerto }}" {% if puerto == selected_puerto %}selected{% endif %}>
+                                        {{ puerto }}
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="id_usuario">Usuario:</label>
-                            <input type="text" class="form-control" id="id_usuario" name="usuario" value="{{ user }}">
+                            <select class="form-control" id="id_usuario" name="usuario">
+                                {% for user in unique_users %}
+                                    <option value="{{ user }}" {% if user == selected_usuario %}selected{% endif %}>
+                                        {{ user }}
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="id_password">Contraseña:</label>

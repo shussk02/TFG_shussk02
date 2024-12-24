@@ -10,7 +10,7 @@
 log_error
 log_bin
 log_slave_updates=1
-server_id=3
+server_id=3000
 log-basename=master1
 binlog-format=mixed
 

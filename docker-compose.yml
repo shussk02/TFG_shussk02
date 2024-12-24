@@ -1,4 +1,3 @@
-version: '3'
 
 services:
   mariadb1:
@@ -28,6 +27,8 @@ services:
       - ./mariadb2/init-db:/docker-entrypoint-initdb.d
     ports:
       - "23306:3306"
+    depends_on:
+      - mariadb1
     networks:
       mariadb_network:
         aliases:
@@ -43,6 +44,8 @@ services:
       - ./mariadb3/init-db:/docker-entrypoint-initdb.d
     ports:
       - "33306:3306"
+    depends_on:
+      - mariadb1
     networks:
       mariadb_network:
         aliases:

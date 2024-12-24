@@ -1,23 +1,22 @@
-import io
 from django.conf import settings
 from django.views.generic.list import ListView
 from pyexpat.errors import *
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 import pandas as pd
-import datetime
 from django.contrib import messages
 from .forms import UploadFileForm
 from .utils import *
 from django.db import connection
 from django.core.management import call_command
 from django.apps import apps
+from django.db.utils import OperationalError
+
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
 
 
-# Vista para procesar la carga del archivo CSV
 def cargar_csv(request):
     # Verificar si la solicitud es de tipo POST
     if request.method == 'POST':
@@ -26,12 +25,10 @@ def cargar_csv(request):
         
         # Verificar si el formulario es válido
         if form.is_valid():
-            # Obtener el archivo CSV y el separador del formulario válido
             archivo_csv = request.FILES['archivo_csv']
             separador = form.cleaned_data['separador']
             
             try:
-                # Leo el archivo CSV usando pandas
                 df = pd.read_csv(archivo_csv, sep=separador)
 
                 # Obtener las columnas de tipo datetime
@@ -39,67 +36,89 @@ def cargar_csv(request):
 
                 if datetime_columns:
                     df[datetime_columns] = df[datetime_columns].astype(str)
-                    # Guardar las columnas datetime en una sesión separada
                     datetime_columns_dict = {col: df[col].astype(str).tolist() for col in datetime_columns}
                     request.session['datetime_columns'] = datetime_columns_dict
-
                 else:
                     if 'datetime_columns' in request.session:
                         request.session['datetime_columns'].clear()
 
-                # Convierto el DataFrame en una lista de diccionarios
                 df_dict = df.to_dict(orient='records')
-
-                # Guardo la lista de diccionarios en la sesión
                 request.session['df'] = df_dict
                 
-                # Se redirige al usuario a la vista 'modificar_csv' para mostrar los datos del CSV
                 return redirect('mostrar_csv')
             
             except (pd.errors.EmptyDataError, pd.errors.ParserError):
-                # Se capturan errores que surjan al procesar el archivo CSV
                 form.add_error('archivo_csv', 'Error al procesar el archivo CSV.')
     
-    # Si la solicitud no es de tipo POST, se crea un formulario vacío
     else:
         form = UploadFileForm()
     
-    # Añadir el host y el puerto al contexto
+    # Obtener los valores únicos de host, puerto y usuario
+    hosts = [
+        {'name': 'max_host', 'port': 4007, 'user': 'maxuser'},
+        {'name': 'mariadb1_host', 'port': 3306, 'user': 'root'},
+        {'name': 'mariadb2_host', 'port': 3306, 'user': 'root'},
+        {'name': 'mariadb3_host', 'port': 3306, 'user': 'root'},
+    ]
+    
+    # Obtener valores únicos
+    unique_hosts = sorted({host['name'] for host in hosts})
+    unique_ports = sorted({host['port'] for host in hosts})
+    unique_users = sorted({host['user'] for host in hosts})
+
+    # Valores preseleccionados (obtenemos del POST o valores predeterminados si no se envió nada)
+    selected_host = request.POST.get('host', settings.DATABASES['default']['HOST'] if unique_hosts else "")
+    selected_puerto = request.POST.get('puerto', settings.DATABASES['default']['PORT'] if unique_ports else "")
+    selected_usuario = request.POST.get('usuario', settings.DATABASES['default']['USER'] if unique_users else "")
+
     context = {
         'form': form,
         'host': settings.DATABASES['default']['HOST'],
         'puerto': settings.DATABASES['default']['PORT'],
         'user': settings.DATABASES['default']['USER'],
         'password': settings.DATABASES['default']['PASSWORD'],
-        'hosts': [
-            {'name': 'max_host', 'port': 4007, 'user': 'maxuser'},
-            {'name': 'mariadb1_host', 'port': 3306, 'user': 'root'},
-            {'name': 'mariadb2_host', 'port': 3306, 'user': 'root'},
-            {'name': 'mariadb3_host', 'port': 3306, 'user': 'root'},
-        ]
+        'unique_hosts': unique_hosts,
+        'unique_ports': unique_ports,
+        'unique_users': unique_users,
+        'selected_host': selected_host,
+        'selected_puerto': selected_puerto,
+        'selected_usuario': selected_usuario
     }
     
-    # Se renderiza el template 'cargar_csv.html' con el formulario
     return render(request, 'cargar_csv.html', context)
+
 
 
 def cambiar_host_puerto(request):
     if request.method == 'POST':
+        # Obtener los nuevos valores de host, puerto, usuario y contraseña
         nuevo_host = request.POST.get('host')
         nuevo_puerto = request.POST.get('puerto')
         nuevo_usuario = request.POST.get('usuario')
         nueva_contrasena = request.POST.get('password')
-        
+
+        # Comprobar si los campos tienen valores
         if nuevo_host and nuevo_puerto and nuevo_usuario and nueva_contrasena:
-            settings.DATABASES['default']['HOST'] = nuevo_host
-            settings.DATABASES['default']['PORT'] = nuevo_puerto
-            settings.DATABASES['default']['USER'] = nuevo_usuario
-            settings.DATABASES['default']['PASSWORD'] = nueva_contrasena
-            messages.success(request, "Host, puerto, usuario y contraseña actualizados exitosamente.")
+            try:
+                # Actualizar los parámetros de configuración de la base de datos en Django
+                settings.DATABASES['default']['HOST'] = nuevo_host
+                settings.DATABASES['default']['PORT'] = nuevo_puerto
+                settings.DATABASES['default']['USER'] = nuevo_usuario
+                settings.DATABASES['default']['PASSWORD'] = nueva_contrasena
+
+                # Intentar realizar una consulta simple para verificar la conexión
+                with connection['default'].cursor() as cursor:
+                    cursor.execute('SELECT 1')
+
+                # Si la consulta es exitosa, se realiza el cambio
+                messages.success(request, "Host, puerto, usuario y contraseña actualizados exitosamente.")
+            except OperationalError as e:
+                # Si hay un error de conexión, se muestra un mensaje de error
+                messages.error(request, f"Error al intentar conectar con la base de datos: {str(e)}")
         else:
             messages.error(request, "Debe proporcionar el host, puerto, usuario y contraseña.")
         
-        return redirect('cargar_csv')  # Redirige a la página de carga de CSV después de actualizar
+        return redirect('cargar_csv')  # Redirige a la página de carga de CSV después de intentar actualizar
 
     return render(request, 'cargar_csv.html')
 
