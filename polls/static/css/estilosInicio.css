@@ -1,9 +1,17 @@
-
 table {
     width: 100%;
-    table-layout: fixed;
+    table-layout: auto; /* Ajusta el tamaño de las columnas al contenido */
     border-collapse: collapse;
     border: 2px solid black;
+}
+
+th, td {
+    word-wrap: break-word; /* Permite que el texto largo se divida */
+    overflow-wrap: break-word; /* Asegura que el texto largo se ajuste correctamente */
+}
+
+th, td {
+    padding: 8px; /* Añade un poco de espacio a las celdas */
 }
 
 .banner {
@@ -28,15 +36,15 @@ table {
     color: white;
 }
 
-
 .table-responsive {
     overflow-x: auto;
-    max-width: 100%; 
+    max-width: 100%;
 }
 
 .form-check-label {
     white-space: nowrap;
 }
+
 .form-container {
     background-color: #f8f9fa;
     padding: 20px;
@@ -48,11 +56,6 @@ table {
     max-width: 600px;
     margin: auto;
 }
-
-th,td {
-    word-wrap: break-word;
-}
-
 
 .centrarHeader{
     font-weight: bold;
@@ -72,7 +75,6 @@ div{
     margin-bottom: 10px;
 }
 
-
 .checkbox-container {
     display: flex;
 }
@@ -80,26 +82,4 @@ div{
 .checkbox-item {
     align-self: center;
     transform: scale(1.5);
-}
-
-
-
-#formulario-nueva-tabla {
-    /* Estilos del formulario de nueva tabla */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 20px;
-    border: 1px solid black;
-    z-index: 1000; /* Asegura que el formulario esté en la parte superior */
-    display: none;
-}
-
-.cerrar-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
 }

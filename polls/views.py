@@ -11,6 +11,7 @@ from django.db import connection
 from django.core.management import call_command
 from django.apps import apps
 from django.db.utils import OperationalError
+import numpy as np
 
 
 def index(request):
@@ -471,17 +472,20 @@ def insertar_datos(request):
             # Crear un DataFrame con los datos originales
             df = pd.DataFrame(df_dict)
 
+            # Obtener las columnas de fecha y convertir 'NaT' en None para que MySQL lo reconozca como NULL
             datetime_columns_dict = request.session.get('datetime_columns', {})
 
             for col, values in datetime_columns_dict.items():
                 if col in df.columns:
                     # Convertir los valores a datetime si la columna existe en el DataFrame
                     df[col] = pd.to_datetime(df[col], errors='coerce')
+                    # Reemplazar 'NaT' con None (NULL en la base de datos)
+                    df[col] = df[col].apply(lambda x: None if pd.isna(x) else x)
                 else:
                     pass
 
-            # Convertir valores NaN y NaT a None
-            df = df.where(pd.notnull(df), None)
+            # Reemplazar valores 'NaT' y 'NaN' con None (NULL en la base de datos)
+            df = df.replace({pd.NaT: None, pd.NA: None, np.nan: None})
 
             # Obtener las columnas existentes en la tabla de la base de datos
             existing_columns_info = obtener_columnas_tabla(nombre_tabla)
@@ -513,8 +517,25 @@ def insertar_datos(request):
                     connection.commit()
                     messages.success(request, f"Datos insertados correctamente en la tabla {nombre_tabla}.")
                 except Exception as e:
-                    # Manejo de errores si ocurre algún problema al insertar los datos
-                    messages.error(request, f"Error al insertar datos en la tabla {nombre_tabla}: {str(e)}")
+                    print(f"Error al insertar los datos: {e}")
+                    error_value = None  # Inicializamos la variable error_value
+
+                    # Si hay un error, tratamos de encontrar la fila específica que causó el problema
+                    for i, row in enumerate(values):
+                        try:
+                            # Intentamos ejecutar la consulta con una sola fila para encontrar el error exacto
+                            cursor.execute(sql, row)
+                        except Exception as row_error:
+                            # Si la fila falla, asignamos esa fila al error_value
+                            error_value = row
+                            break
+                    
+                    # Si 'error_value' tiene algún valor, incluimos la fila en el mensaje de error
+                    if error_value:
+                        messages.error(request, f"Error al insertar datos en la tabla {nombre_tabla}. Detalles: {e}. Fila con error: {error_value}")
+                    else:
+                        # Si no pudimos encontrar una fila específica, mostramos el error general
+                        messages.error(request, f"Error al insertar datos en la tabla {nombre_tabla}. Detalles: {e}")
                     return redirect('columnas_seleccionadas')
 
             # Si la inserción fue exitosa, redirigir a alguna página
