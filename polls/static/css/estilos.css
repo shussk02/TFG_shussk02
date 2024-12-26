@@ -1,6 +1,6 @@
 table {
     width: 100%;
-    table-layout: fixed;
+    table-layout: auto;
     border-collapse: collapse;
     border: 2px solid black;
 }
@@ -27,7 +27,13 @@ table {
 }
 
 th, td {
-    word-wrap: break-word;
+    padding: 8px; /* Espaciado interno para las celdas */
+    border: 1px solid #ddd; /* Borde entre las celdas */
+    text-align: center; /* Centra el texto en las celdas */
+    word-wrap: break-word; 
+    overflow: hidden; /* Oculta el texto que se salga del ancho de la celda */
+    text-overflow: ellipsis; /* Muestra puntos suspensivos (...) si el texto es muy largo */
+
 }
 
 input[type="text"] {

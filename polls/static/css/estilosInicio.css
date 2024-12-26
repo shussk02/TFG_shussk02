@@ -6,12 +6,13 @@ table {
 }
 
 th, td {
-    word-wrap: break-word; /* Permite que el texto largo se divida */
-    overflow-wrap: break-word; /* Asegura que el texto largo se ajuste correctamente */
-}
+    padding: 8px; /* Espaciado interno para las celdas */
+    border: 1px solid #ddd; /* Borde entre las celdas */
+    text-align: center; /* Centra el texto en las celdas */
+    word-wrap: break-word; 
+    overflow: hidden; /* Oculta el texto que se salga del ancho de la celda */
+    text-overflow: ellipsis; /* Muestra puntos suspensivos (...) si el texto es muy largo */
 
-th, td {
-    padding: 8px; /* Añade un poco de espacio a las celdas */
 }
 
 .banner {

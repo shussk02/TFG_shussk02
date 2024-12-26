@@ -472,6 +472,7 @@ def insertar_datos(request):
             # Crear un DataFrame con los datos originales
             df = pd.DataFrame(df_dict)
 
+
             # Obtener las columnas de fecha y convertir 'NaT' en None para que MySQL lo reconozca como NULL
             datetime_columns_dict = request.session.get('datetime_columns', {})
 
@@ -484,8 +485,15 @@ def insertar_datos(request):
                 else:
                     pass
 
-            # Reemplazar valores 'NaT' y 'NaN' con None (NULL en la base de datos)
-            df = df.replace({pd.NaT: None, pd.NA: None, np.nan: None})
+            # Imprimir los tipos de datos de cada columna
+            print("Tipos de datos de las columnas del DataFrame:")
+            print(df)
+
+            
+
+            # Imprimir los tipos de datos de cada columna
+            print("Tipos de datos de las columnas del DataFrame:")
+            print(df)
 
             # Obtener las columnas existentes en la tabla de la base de datos
             existing_columns_info = obtener_columnas_tabla(nombre_tabla)
@@ -502,6 +510,9 @@ def insertar_datos(request):
                     messages.error(request, f"El tipo de datos de la columna '{col}' del DataFrame no coincide con la tabla de la base de datos. Por favor, elija otra tabla.")
                     return redirect('columnas_seleccionadas')
 
+            # Reemplazar valores 'NaT' y 'NaN' con None (NULL en la base de datos)
+            df = df.replace({pd.NaT: None, pd.NA: None, np.nan: None})
+            
             # Generar el comando SQL para insertar los datos
             columns = ', '.join(df.columns)
             placeholders = ', '.join(['%s'] * len(df.columns))
