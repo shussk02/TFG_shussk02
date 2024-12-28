@@ -5,7 +5,6 @@ from .views import *
 app_name = 'polls'
 
 urlpatterns = [
-    path('index/',index, name='index'),
     path('', cargar_csv, name='cargar_csv'),
     path('cambiarhp/', cambiarhp, name='cambiarhp'),
     path('view/', mostrar_csv, name='mostrar_csv'),

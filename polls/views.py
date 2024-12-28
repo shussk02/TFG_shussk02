@@ -14,10 +14,6 @@ from django.db.utils import OperationalError
 import numpy as np
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
-
-
 def cargar_csv(request):
     # Verificar si la solicitud es de tipo POST
     if request.method == 'POST':
