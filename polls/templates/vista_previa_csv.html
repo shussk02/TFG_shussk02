@@ -25,7 +25,7 @@
     </div>
     <div class="container mt-4">
         
-        <form method="post" action="{% url 'columnas_seleccionadas' %}">
+        <form method="post" action="{% url 'polls:columnas_seleccionadas' %}">
             {% csrf_token %}
             <div class="table-responsive">
                 <table class="table table-bordered">
@@ -78,8 +78,8 @@
         </form>
 
         <div class="mt-3">
-            <a href="{% url 'modificar_csv' %}" class="btn btn-secondary">Modificar columnas</a>
-            <a href="{% url 'cargar_csv' %}" class="btn btn-secondary">Cargar nuevo CSV</a>
+            <a href="{% url 'polls:modificar_csv' %}" class="btn btn-secondary">Modificar columnas</a>
+            <a href="{% url 'polls:cargar_csv' %}" class="btn btn-secondary">Cargar nuevo CSV</a>
         </div>
     </div>
 

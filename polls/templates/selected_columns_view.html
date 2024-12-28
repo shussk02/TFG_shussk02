@@ -31,7 +31,7 @@
         <div class="form-container">
             <div class="d-flex align-items-center mb-4">
                 <!-- Formulario para seleccionar el modelo -->
-                <form method="post" action="{% url 'insertar_datos' %}" class="form-inline">
+                <form method="post" action="{% url 'polls:insertar_datos' %}" class="form-inline">
                     {% csrf_token %}
                     {% if tablas %}
                     <div class="form-group mr-2">
@@ -49,7 +49,7 @@
                 </form>
 
                 <div class="ml-auto">
-                    <a href="{% url 'mostrar_csv' %}" class="btn btn-secondary">Retroceder</a>
+                    <a href="{% url 'polls:mostrar_csv' %}" class="btn btn-secondary">Retroceder</a>
                 </div>
             </div>
         </div>
@@ -97,26 +97,29 @@
         <div class="nueva-tabla-btn">
             <!-- Botón para crear una nueva tabla -->
             <button class="btn btn-success" onclick="mostrarFormulario()">Nueva Tabla</button>
-
-            <!-- Formulario para crear una nueva tabla -->
-            <div id="formulario-nueva-tabla" class="card">
-                <div class="card-header">
-                    <h2 class="mb-0">Crear Nueva Tabla</h2>
-                </div>
-                <div class="card-body">
-                    <form method="post" action="{% url 'nueva_tabla' %}">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="nombre_tabla">Nombre de la nueva tabla:</label>
-                            <input type="text" name="nombre_tabla" id="nombre_tabla" class="form-control">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Crear Tabla</button>
-                    </form>
-                    <button class="btn btn-danger btn-cancel" onclick="cerrarFormulario()">Cancelar</button>
-                </div>
+        </div>
+    </div>
+    
+    <!-- Modal superpuesto para crear nueva tabla -->
+    <div class="modal-overlay" id="formulario-nueva-tabla">
+        <div class="modal-content">
+            <div class="modal-header">
+                Crear Nueva Tabla
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'polls:nueva_tabla' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="nombre_tabla">Nombre de la nueva tabla:</label>
+                        <input type="text" name="nombre_tabla" id="nombre_tabla" placeholder="Ejemplo: usuarios" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Crear Tabla</button>
+                    <button type="button" class="btn btn-cancel" onclick="cerrarFormulario()">Cancelar</button>
+                </form>
             </div>
         </div>
     </div>
+    
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>

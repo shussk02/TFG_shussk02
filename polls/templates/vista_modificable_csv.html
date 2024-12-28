@@ -24,7 +24,7 @@
         <h1 class="my-4">Modificar nombres y formato de datos de las columnas</h1>
     </div>
     <div class="container mt-4">
-        <form method="post" action="{% url 'update' %}">
+        <form method="post" action="{% url 'polls:update' %}">
             {% csrf_token %}
             <div class="table-responsive">
                 <table class="table table-bordered">

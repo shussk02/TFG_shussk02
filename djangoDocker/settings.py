@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'polls.apps.PollsConfig',
     'import_export',
+    'accounts.apps.AccountsConfig'
 ]
 
 MIDDLEWARE = [
@@ -54,11 +55,13 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'djangoDocker.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'polls' / 'templates'],
+        'DIRS': [
+            BASE_DIR / 'polls' / 'templates',
+            BASE_DIR / 'accounts' / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

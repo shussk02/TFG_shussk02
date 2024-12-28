@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Usuario</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/estilosInicio.css' %}">
+</head>
+<body>
+    <div class="banner">
+        <h1>Registro</h1>
+    </div>
+
+    <div class="container mt-5">
+        <div class="form-container">
+            <form method="post" action="{% url 'register' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username">Usuario:</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password1">Contraseña:</label>
+                    <input type="password" id="password1" name="password1" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password2">Confirmar Contraseña:</label>
+                    <input type="password" id="password2" name="password2" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Registrarse</button>
+                <a href="{% url 'login' %}" class="btn btn-link">¿Ya tienes cuenta? Inicia Sesión</a>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

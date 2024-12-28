@@ -1,6 +1,6 @@
 function mostrarFormulario() {
     var formulario = document.getElementById("formulario-nueva-tabla");
-    formulario.style.display = "block";
+    formulario.style.display = "flex";
 }
 
 function cerrarFormulario() {

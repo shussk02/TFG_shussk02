@@ -46,7 +46,7 @@ def cargar_csv(request):
                 df_dict = df.to_dict(orient='records')
                 request.session['df'] = df_dict
                 
-                return redirect('mostrar_csv')
+                return redirect('polls:mostrar_csv')
             
             except (pd.errors.EmptyDataError, pd.errors.ParserError):
                 form.add_error('archivo_csv', 'Error al procesar el archivo CSV.')
@@ -90,7 +90,7 @@ def cargar_csv(request):
 
 
 
-def cambiar_host_puerto(request):
+def cambiarhp(request):
     if request.method == 'POST':
         # Obtener los nuevos valores de host, puerto, usuario y contraseña
         nuevo_host = request.POST.get('host')
@@ -119,7 +119,7 @@ def cambiar_host_puerto(request):
         else:
             messages.error(request, "Debe proporcionar el host, puerto, usuario y contraseña.")
         
-        return redirect('cargar_csv')  # Redirige a la página de carga de CSV después de intentar actualizar
+        return redirect('polls:cargar_csv')  # Redirige a la página de carga de CSV después de intentar actualizar
 
     return render(request, 'cargar_csv.html')
 
@@ -161,7 +161,7 @@ def mostrar_csv(request):
         return render(request, 'vista_previa_csv.html', {'columnas_con_tipos': columnas_con_tipos, 'datos': datos})
     else:
         # Si no hay un DataFrame en la sesión, se redirige al usuario a la vista 'cargar_csv'
-        return redirect('cargar_csv')
+        return redirect('polls:cargar_csv')
 
 
 # Vista para modificar el archivo CSV cargado
@@ -199,7 +199,7 @@ def modificar_csv(request):
         return render(request, 'vista_modificable_csv.html', {'columnas_con_tipos': columnas_con_tipos, 'datos': datos})
     else:
         # Si no hay un DataFrame en la sesión, se redirige al usuario a la vista 'cargar_csv'
-        return redirect('cargar_csv')
+        return redirect('polls:cargar_csv')
 
 
 def update(request):
@@ -244,16 +244,16 @@ def update(request):
                 request.session['df'] = df.to_dict(orient='records')
 
                 # Redirigir de vuelta a la vista mostrar_csv para mostrar los cambios
-                return redirect('mostrar_csv')
+                return redirect('polls:mostrar_csv')
             
             except Exception as e:
                 # Si hay un error al modificar el tipo de datos, mostrar una alerta al usuario
                 messages.error(request, f"No se pudo modificar al tipo de datos: {str(e)}")
                 # Redirigir de vuelta a la vista modificar_csv para que el usuario pueda corregir
-                return redirect('modificar_csv')
+                return redirect('polls:modificar_csv')
     
     # Si no es una solicitud POST, redirigir a la página de inicio o mostrar un mensaje de error
-    return redirect('cargar_csv')
+    return redirect('polls:cargar_csv')
 
 
 def convertir_tipos_de_dato(df, tipos):
@@ -361,7 +361,7 @@ def columnas_seleccionadas(request):
 
         else:
     
-            return redirect('mostrar_csv')
+            return redirect('polls:mostrar_csv')
     else:
 
         df_dict = request.session.get('df_selected')
@@ -452,13 +452,13 @@ def nueva_tabla(request):
                     # Ejecuta la sentencia SQL
                     cursor.execute(sql_statement)
                 # Después de crear la tabla, redirige a alguna página o realiza alguna acción
-                return redirect('columnas_seleccionadas')
+                return redirect('polls:columnas_seleccionadas')
 
                 # Si la tabla ya existe, redirige a alguna página o realiza alguna acción
-            return redirect('columnas_seleccionadas')
+            return redirect('polls:columnas_seleccionadas')
 
             # Si la tabla ya existe, redirigir a alguna página o realizar alguna acción
-        return redirect('columnas_seleccionadas')
+        return redirect('polls:columnas_seleccionadas')
 
 
 def insertar_datos(request):
@@ -485,16 +485,6 @@ def insertar_datos(request):
                 else:
                     pass
 
-            # Imprimir los tipos de datos de cada columna
-            print("Tipos de datos de las columnas del DataFrame:")
-            print(df)
-
-            
-
-            # Imprimir los tipos de datos de cada columna
-            print("Tipos de datos de las columnas del DataFrame:")
-            print(df)
-
             # Obtener las columnas existentes en la tabla de la base de datos
             existing_columns_info = obtener_columnas_tabla(nombre_tabla)
             existing_columns = {col[0]: col[1] for col in existing_columns_info}
@@ -504,15 +494,14 @@ def insertar_datos(request):
                 if col not in existing_columns:
                     # Si la columna no existe en la tabla, notificar al usuario y redirigir
                     messages.error(request, f"La columna '{col}' del DataFrame no existe en la tabla de la base de datos. Por favor, elija otra tabla.")
-                    return redirect('columnas_seleccionadas')
+                    return redirect('polls:columnas_seleccionadas')
                 elif not tipo_datos_coinciden(df[col].dtype, existing_columns[col]):
                     # Si los tipos de datos no coinciden, notificar al usuario y redirigir
                     messages.error(request, f"El tipo de datos de la columna '{col}' del DataFrame no coincide con la tabla de la base de datos. Por favor, elija otra tabla.")
-                    return redirect('columnas_seleccionadas')
+                    return redirect('polls:columnas_seleccionadas')
 
             # Reemplazar valores 'NaT' y 'NaN' con None (NULL en la base de datos)
             df = df.replace({pd.NaT: None, pd.NA: None, np.nan: None})
-            
             # Generar el comando SQL para insertar los datos
             columns = ', '.join(df.columns)
             placeholders = ', '.join(['%s'] * len(df.columns))
@@ -528,7 +517,7 @@ def insertar_datos(request):
                     connection.commit()
                     messages.success(request, f"Datos insertados correctamente en la tabla {nombre_tabla}.")
                 except Exception as e:
-                    print(f"Error al insertar los datos: {e}")
+                    
                     error_value = None  # Inicializamos la variable error_value
 
                     # Si hay un error, tratamos de encontrar la fila específica que causó el problema
@@ -547,13 +536,13 @@ def insertar_datos(request):
                     else:
                         # Si no pudimos encontrar una fila específica, mostramos el error general
                         messages.error(request, f"Error al insertar datos en la tabla {nombre_tabla}. Detalles: {e}")
-                    return redirect('columnas_seleccionadas')
+                    return redirect('polls:columnas_seleccionadas')
 
             # Si la inserción fue exitosa, redirigir a alguna página
-            return redirect('columnas_seleccionadas')
+            return redirect('polls:columnas_seleccionadas')
     
     # Redirigir si no se proporcionó un método POST o si no se encontraron datos en el DataFrame
-    return redirect('columnas_seleccionadas')
+    return redirect('polls:columnas_seleccionadas')
 
 
 

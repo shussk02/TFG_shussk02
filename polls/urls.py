@@ -1,10 +1,13 @@
 from django.urls import path
 from .views import *
 
+
+app_name = 'polls'
+
 urlpatterns = [
     path('index/',index, name='index'),
     path('', cargar_csv, name='cargar_csv'),
-    path('cambiar_host_puerto/', cambiar_host_puerto, name='cambiar_host_puerto'),
+    path('cambiarhp/', cambiarhp, name='cambiarhp'),
     path('view/', mostrar_csv, name='mostrar_csv'),
     path('edit/', modificar_csv, name='modificar_csv'),
     path('update/', update, name='update'),
