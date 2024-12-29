@@ -20,9 +20,19 @@
 </head>
 
 <body>
-    <div class="banner">
+    <div class="banner d-flex justify-content-between align-items-center">
         <h1 class="my-4">Visualización del archivo cargado</h1>
+        <div>
+            <!-- Botón de logout -->
+            <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
+        </div>
     </div>
+    
     <div class="container mt-4">
         
         <form method="post" action="{% url 'polls:columnas_seleccionadas' %}">

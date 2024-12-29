@@ -18,7 +18,7 @@ def user_login(request):
 
 def user_logout(request):
     logout(request)
-    return redirect('login')  # Redirige a la página de login después de cerrar sesión
+    return redirect('accounts:login')  # Redirige a la página de login después de cerrar sesión
 
 
 
@@ -32,7 +32,7 @@ def user_register(request):
             try:
                 user = User.objects.create_user(username=username, password=password1)
                 login(request, user)
-                return redirect('login')
+                return redirect('accounts:login')
             except:
                 messages.error(request, 'Error al crear el usuario. El nombre de usuario ya existe.')
         else:

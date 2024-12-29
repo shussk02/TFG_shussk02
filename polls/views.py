@@ -12,8 +12,10 @@ from django.core.management import call_command
 from django.apps import apps
 from django.db.utils import OperationalError
 import numpy as np
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def cargar_csv(request):
     # Verificar si la solicitud es de tipo POST
     if request.method == 'POST':

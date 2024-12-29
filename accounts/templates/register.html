@@ -14,7 +14,7 @@
 
     <div class="container mt-5">
         <div class="form-container">
-            <form method="post" action="{% url 'register' %}">
+            <form method="post" action="{% url 'accounts:register' %}">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="username">Usuario:</label>
@@ -29,7 +29,7 @@
                     <input type="password" id="password2" name="password2" class="form-control" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Registrarse</button>
-                <a href="{% url 'login' %}" class="btn btn-link">¿Ya tienes cuenta? Inicia Sesión</a>
+                <a href="{% url 'accounts:login' %}" class="btn btn-link">¿Ya tienes cuenta? Inicia Sesión</a>
             </form>
         </div>
     </div>
