@@ -7,13 +7,20 @@ import pandas as pd
 from django.contrib import messages
 from .forms import UploadFileForm
 from .utils import *
-from django.db import connection
+from django.db import connections
 from django.core.management import call_command
 from django.apps import apps
 from django.db.utils import OperationalError
 import numpy as np
 from django.contrib.auth.decorators import login_required
 
+# Valores únicos disponibles para host, puerto y usuario
+hosts = [
+    {'name': 'max_host', 'port': 4007, 'user': 'maxuser'},
+    {'name': 'mariadb1_host', 'port': 3306, 'user': 'root'},
+    {'name': 'mariadb2_host', 'port': 3306, 'user': 'root'},
+    {'name': 'mariadb3_host', 'port': 3306, 'user': 'root'},
+]
 
 @login_required
 def cargar_csv(request):
@@ -52,13 +59,7 @@ def cargar_csv(request):
     else:
         form = UploadFileForm()
     
-    # Obtener los valores únicos de host, puerto y usuario
-    hosts = [
-        {'name': 'max_host', 'port': 4007, 'user': 'maxuser'},
-        {'name': 'mariadb1_host', 'port': 3306, 'user': 'root'},
-        {'name': 'mariadb2_host', 'port': 3306, 'user': 'root'},
-        {'name': 'mariadb3_host', 'port': 3306, 'user': 'root'},
-    ]
+    
     
     # Obtener valores únicos
     unique_hosts = sorted({host['name'] for host in hosts})
@@ -97,29 +98,43 @@ def cambiarhp(request):
         nueva_contrasena = request.POST.get('password')
 
         # Comprobar si los campos tienen valores
-        if nuevo_host and nuevo_puerto and nuevo_usuario and nueva_contrasena:
-            try:
-                # Actualizar los parámetros de configuración de la base de datos en Django
-                settings.DATABASES['default']['HOST'] = nuevo_host
-                settings.DATABASES['default']['PORT'] = nuevo_puerto
-                settings.DATABASES['default']['USER'] = nuevo_usuario
-                settings.DATABASES['default']['PASSWORD'] = nueva_contrasena
-
-                # Intentar realizar una consulta simple para verificar la conexión
-                with connection['default'].cursor() as cursor:
-                    cursor.execute('SELECT 1')
-
-                # Si la consulta es exitosa, se realiza el cambio
-                messages.success(request, "Host, puerto, usuario y contraseña actualizados exitosamente.")
-            except OperationalError as e:
-                # Si hay un error de conexión, se muestra un mensaje de error
-                messages.error(request, f"Error al intentar conectar con la base de datos: {str(e)}")
-        else:
+        if not (nuevo_host and nuevo_puerto and nuevo_usuario and nueva_contrasena):
             messages.error(request, "Debe proporcionar el host, puerto, usuario y contraseña.")
-        
-        return redirect('polls:cargar_csv')  # Redirige a la página de carga de CSV después de intentar actualizar
+            return redirect('polls:cargar_csv')
+
+        # Verificar si los valores proporcionados coinciden con los del arreglo
+        es_valido = any(
+            nuevo_host == h['name'] and int(nuevo_puerto) == h['port'] and nuevo_usuario == h['user']
+            for h in hosts
+        )
+
+        if not es_valido:
+            messages.error(request, "Los valores proporcionados no coinciden con los servidores disponibles.")
+            return redirect('polls:cargar_csv')
+
+        try:
+            # Actualizar los parámetros de configuración de la base de datos en Django
+            settings.DATABASES['default']['HOST'] = nuevo_host
+            settings.DATABASES['default']['PORT'] = nuevo_puerto
+            settings.DATABASES['default']['USER'] = nuevo_usuario
+            settings.DATABASES['default']['PASSWORD'] = nueva_contrasena
+
+            # Intentar realizar una consulta simple para verificar la conexión
+            with connections['default'].cursor() as cursor:
+                cursor.execute('SELECT 1')
+
+            # Si la consulta es exitosa, se realiza el cambio
+            messages.success(request, "Host, puerto, usuario y contraseña actualizados exitosamente.")
+        except OperationalError as e:
+            # Si hay un error de conexión, se muestra un mensaje de error
+            messages.error(request, f"Error al intentar conectar con la base de datos: {str(e)}")
+        except Exception as ex:
+            messages.error(request, f"Ocurrió un error inesperado: {str(ex)}")
+
+        return redirect('polls:cargar_csv')
 
     return render(request, 'cargar_csv.html')
+
 
     
 def mostrar_csv(request):
@@ -155,8 +170,10 @@ def mostrar_csv(request):
         # Zipear columnas y tipos_de_dato
         columnas_con_tipos = zip(columnas, tipos_de_dato)
 
+        messages.success(request, 'Archivo cargado correctamente.')
         # Se renderiza la plantilla 'vista_previa_csv.html' con los datos del DataFrame
         return render(request, 'vista_previa_csv.html', {'columnas_con_tipos': columnas_con_tipos, 'datos': datos})
+    
     else:
         # Si no hay un DataFrame en la sesión, se redirige al usuario a la vista 'cargar_csv'
         return redirect('polls:cargar_csv')
@@ -394,7 +411,7 @@ def columnas_seleccionadas(request):
 
 
 def obtener_tablas_disponibles():
-    with connection.cursor() as cursor:
+    with connections.cursor() as cursor:
         # Ejecutar la consulta para obtener todas las tablas en la base de datos
         cursor.execute("SHOW TABLES LIKE 'csv_%'")
         
@@ -438,7 +455,7 @@ def nueva_tabla(request):
             # Verificar si la tabla ya existe en la base de datos
             if table_name not in existing_tables:
                 # Si la tabla no existe, crearla utilizando SQL
-                with connection.cursor() as cursor:
+                with connections.cursor() as cursor:
 
                     # Define la sentencia SQL para crear la tabla
                     sql_columns = ",\n".join([f"{column} {map_dtype_to_field(df.dtypes[column])}" for column in df.columns])
@@ -509,10 +526,10 @@ def insertar_datos(request):
             values = [tuple(row) for row in df.to_numpy()]
 
             # Ejecutar la consulta SQL para insertar los datos
-            with connection.cursor() as cursor:
+            with connections.cursor() as cursor:
                 try:
                     cursor.executemany(sql, values)
-                    connection.commit()
+                    connections.commit()
                     messages.success(request, f"Datos insertados correctamente en la tabla {nombre_tabla}.")
                 except Exception as e:
                     
@@ -548,7 +565,7 @@ def obtener_columnas_tabla(nombre_tabla):
     """
     Obtener las columnas existentes en una tabla de la base de datos junto con su tipo de datos.
     """
-    with connection.cursor() as cursor:
+    with connections.cursor() as cursor:
         cursor.execute(f"SHOW COLUMNS FROM {nombre_tabla}")
         columnas_info = cursor.fetchall()
         columnas = [(fila[0], fila[1]) for fila in columnas_info]
