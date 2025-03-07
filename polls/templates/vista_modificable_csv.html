@@ -7,19 +7,11 @@
     <title>Mostrar CSV</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'css/estilos.css' %}">
-
-    <script>
-        {% if messages %}
-        window.onload = function() {
-            {% for message in messages %}
-            alert("{{ message }}");
-            {% endfor %}
-        }
-        {% endif %}
-    </script>
+    
 </head>
 
 <body>
+
     <div class="banner d-flex justify-content-between align-items-center">
         <h1 class="my-4">Modificar nombres y formato de datos de las columnas</h1>
         <div>
@@ -80,6 +72,25 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        {% if messages %}
+        window.onload = function() {
+            {% for message in messages %}
+            Swal.fire({
+                title: 'Mensaje del sistema',
+                text: "{{ message|escapejs }}",  // Escapa el texto para evitar problemas con comillas
+                icon: '{% if message.tags == "success" %}success{% elif message.tags == "error" %}error{% elif message.tags == "warning" %}warning{% else %}info{% endif %}',
+                confirmButtonText: 'Aceptar',
+                customClass: {
+                    popup: 'swal-custom-popup',  // Clase personalizada (opcional)
+                }
+            });
+            {% endfor %}
+        }
+        {% endif %}
+    </script>
 </body>
 
 </html>

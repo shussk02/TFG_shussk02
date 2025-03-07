@@ -1,10 +1,11 @@
+/* ====== MODAL ====== */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6); /* Fondo más oscuro para mayor contraste */
+    background: rgba(0, 0, 0, 0.6);
     display: none;
     justify-content: center;
     align-items: center;
@@ -12,14 +13,14 @@
 }
 
 .modal-content {
-    background-color: #ffffff; /* Fondo blanco */
+    background-color: #ffffff;
     padding: 20px 30px;
     border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Sombra más suave */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
     width: 90%;
     max-width: 600px;
-    border: 3px solid rgba(9, 9, 121, 0.7); /* Consistente con el banner */
-    font-family: 'Arial', sans-serif; /* Tipografía limpia */
+    border: 3px solid rgba(9, 9, 121, 0.7);
+    font-family: 'Arial', sans-serif;
 }
 
 .modal-header {
@@ -51,9 +52,10 @@
     border: 1px solid #ced4da;
     border-radius: 8px;
     font-size: 1rem;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* Textura ligera */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* ====== BOTONES ====== */
 button.btn {
     padding: 10px 20px;
     border-radius: 6px;
@@ -61,55 +63,51 @@ button.btn {
     margin-top: 15px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    border: none; /* Unificado */
 }
 
 .btn-primary {
-    background-color: rgba(9, 9, 121, 1); /* Azul intenso del banner */
+    background-color: rgba(9, 9, 121, 1);
     color: white;
-    border: none;
 }
 
 .btn-primary:hover {
-    background-color: rgba(0, 212, 255, 1); /* Azul claro en hover */
+    background-color: rgba(0, 212, 255, 1);
 }
 
 .btn-cancel {
     background-color: #dc3545;
     color: white;
-    border: none;
 }
 
 .btn-cancel:hover {
     background-color: #b02a37;
 }
 
-/* Mostrar el modal */
+/* ====== MODAL DISPLAY ====== */
 .modal-overlay.show {
     display: flex;
 }
 
+/* ====== TABLA ====== */
 .table-container {
-    margin-top: 20px;
+    display: flexbox;
+    align-items: center;
+    width: 100%;
+    word-wrap: break-word;
+    overflow-x: auto;
 }
 
 .table-container table {
     width: 100%;
+    table-layout: auto;
     border-collapse: collapse;
-    background-color: #fff;
-    border: 2px solid black;
 }
 
-.table-container th {
-    background: linear-gradient(90deg, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%);
-    color: white;
-    padding: 10px;
-    font-weight: bold;
-    text-align: center;
-}
-
+.table-container th, 
 .table-container td {
-    padding: 8px;
+    padding: 10px;
     border: 1px solid #ddd;
     text-align: center;
+    overflow: hidden;
 }
-

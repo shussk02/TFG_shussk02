@@ -31,5 +31,24 @@
             </form>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        {% if messages %}
+        window.onload = function() {
+            {% for message in messages %}
+            Swal.fire({
+                title: 'Mensaje del sistema',
+                text: "{{ message|escapejs }}",  // Escapa el texto para evitar problemas con comillas
+                icon: '{% if message.tags == "success" %}success{% elif message.tags == "error" %}error{% elif message.tags == "warning" %}warning{% else %}info{% endif %}',
+                confirmButtonText: 'Aceptar',
+                customClass: {
+                    popup: 'swal-custom-popup',  // Clase personalizada (opcional)
+                }
+            });
+            {% endfor %}
+        }
+        {% endif %}
+    </script>
 </body>
 </html>

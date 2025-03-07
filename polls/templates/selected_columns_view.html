@@ -8,21 +8,12 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'css/estilosInicio.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/estilosAparte.css' %}">
-    
-    <script>
-        {% if messages %}
-        window.onload = function() {
-            {% for message in messages %}
-            alert("{{ message }}");
-            {% endfor %}
-        }
-        {% endif %}
-    </script>
-    
 
 </head>
 
 <body>
+
+
     <div class="banner d-flex justify-content-between align-items-center">
         <h1 class="my-4">Inserción en base de datos</h1>
         <div>
@@ -40,9 +31,15 @@
 
     <div class="container">
         <div class="form-container">
-            <div class="d-flex align-items-center mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+
+                <div class="nueva-tabla-btn">
+                    <!-- Botón para crear una nueva tabla -->
+                    <button class="btn btn-success" onclick="mostrarFormulario()">Nueva Tabla</button>
+                </div>
+                
                 <!-- Formulario para seleccionar el modelo -->
-                <form method="post" action="{% url 'polls:insertar_datos' %}" class="form-inline">
+                <form method="post" action="{% url 'polls:insertar_datos' %}" class="form-inline d-flex align-items-center">
                     {% csrf_token %}
                     {% if tablas %}
                     <div class="form-group mr-2">
@@ -58,14 +55,14 @@
                     <p>No hay tablas disponibles.</p>
                     {% endif %}
                 </form>
-
-                <div class="ml-auto">
-                    <a href="{% url 'polls:mostrar_csv' %}" class="btn btn-secondary">Retroceder</a>
-                </div>
+            
+                <!-- Botón de retroceder alineado con el formulario -->
+                <a href="{% url 'polls:mostrar_csv' %}" class="btn btn-cancel">Retroceder</a>
             </div>
+        
         </div>
 
-        <div class="tabla-container">
+        <div class="table-container">
             <table class="table table-bordered">
                 <thead class="thead-dark">
                     <tr>
@@ -92,7 +89,7 @@
                     <tr>
                         {% for value in row %}
                         {% if value is None %}
-                        <td class="text-center"></td>
+                        <td class="text-center">-</td>
                         {% elif value == value and value != "NaT" %}
                         <td class="text-center">{{ value }}</td>
                         {% else %}
@@ -105,10 +102,7 @@
             </table>
         </div>
 
-        <div class="nueva-tabla-btn">
-            <!-- Botón para crear una nueva tabla -->
-            <button class="btn btn-success" onclick="mostrarFormulario()">Nueva Tabla</button>
-        </div>
+        
     </div>
     
     <!-- Modal superpuesto para crear nueva tabla -->
@@ -136,6 +130,26 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{% static 'js/formulario.js' %}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        {% if messages %}
+        window.onload = function() {
+            {% for message in messages %}
+            Swal.fire({
+                title: 'Mensaje del sistema',
+                text: "{{ message|escapejs }}",  // Escapa el texto para evitar problemas con comillas
+                icon: '{% if message.tags == "success" %}success{% elif message.tags == "error" %}error{% elif message.tags == "warning" %}warning{% else %}info{% endif %}',
+                confirmButtonText: 'Aceptar',
+                customClass: {
+                    popup: 'swal-custom-popup',  // Clase personalizada (opcional)
+                }
+            });
+            {% endfor %}
+        }
+        {% endif %}
+    </script>
+    
 </body>
 
 </html>

@@ -5,13 +5,23 @@ table {
     border: 2px solid black;
 }
 
+th, td {
+    padding: 8px; /* Espaciado interno para las celdas */
+    border: 1px solid #ddd; /* Borde entre las celdas */
+    text-align: center; /* Centra el texto en las celdas */
+    word-wrap: break-word; 
+    overflow: hidden; /* Oculta el texto que se salga del ancho de la celda */
+    text-overflow: ellipsis; /* Muestra puntos suspensivos (...) si el texto es muy largo */
+
+}
+
 .banner {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
     color: white;
-    padding: 10px;
+    height: 60px;
 }
 
 .banner h1 {
@@ -26,15 +36,6 @@ table {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-th, td {
-    padding: 8px; /* Espaciado interno para las celdas */
-    border: 1px solid #ddd; /* Borde entre las celdas */
-    text-align: center; /* Centra el texto en las celdas */
-    word-wrap: break-word; 
-    overflow: hidden; /* Oculta el texto que se salga del ancho de la celda */
-    text-overflow: ellipsis; /* Muestra puntos suspensivos (...) si el texto es muy largo */
-
-}
 
 input[type="text"] {
     width: 200px;

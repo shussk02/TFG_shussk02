@@ -1,27 +1,28 @@
+/* ===== TABLA ===== */
+
 table {
-    width: 100%;
-    table-layout: auto; /* Ajusta el tamaño de las columnas al contenido */
+    width: 90%;
     border-collapse: collapse;
-    border: 2px solid black;
+    table-layout: auto; /* Fija el tamaño de las celdas */
 }
 
 th, td {
-    padding: 8px; /* Espaciado interno para las celdas */
-    border: 1px solid #ddd; /* Borde entre las celdas */
-    text-align: center; /* Centra el texto en las celdas */
-    word-wrap: break-word; 
-    overflow: hidden; /* Oculta el texto que se salga del ancho de la celda */
-    text-overflow: ellipsis; /* Muestra puntos suspensivos (...) si el texto es muy largo */
-
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+    overflow: hidden;
+    white-space: normal;
+    word-wrap: break-word;
 }
 
+/* ===== BANNER ===== */
 .banner {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
     color: white;
-    padding: 10px;
+    height: 60px;
 }
 
 .banner h1 {
@@ -37,15 +38,7 @@ th, td {
     color: white;
 }
 
-.table-responsive {
-    overflow-x: auto;
-    max-width: 100%;
-}
-
-.form-check-label {
-    white-space: nowrap;
-}
-
+/* ===== FORMULARIOS ===== */
 .form-container {
     background-color: #f8f9fa;
     padding: 20px;
@@ -58,24 +51,25 @@ th, td {
     margin: auto;
 }
 
-.centrarHeader{
+.form-check-label {
+    white-space: nowrap;
+}
+
+/* ===== ALINEACIÓN Y ESPACIADO ===== */
+.centrarHeader, .centrarData {
+    text-align: center;
     font-weight: bold;
-    text-align: center;
 }
 
-.centrarData{
-    text-align: center;
-}
-
-button{
-    margin-top: 10px;
-    margin-right: 10px;
-}
-
-div{
+button, div {
     margin-bottom: 10px;
 }
 
+button {
+    margin-right: 10px;
+}
+
+/* ===== CHECKBOXES ===== */
 .checkbox-container {
     display: flex;
 }

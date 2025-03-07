@@ -16,7 +16,7 @@
     align-items: center;
     background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 50%, rgba(0, 212, 255, 1) 100%);
     color: white;
-    padding: 20px;
+    padding: 5px;
     text-align: center;
     border-radius: 0 0 8px 8px; /* Bordes redondeados inferiores */
 }

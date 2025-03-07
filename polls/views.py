@@ -7,7 +7,7 @@ import pandas as pd
 from django.contrib import messages
 from .forms import UploadFileForm
 from .utils import *
-from django.db import connections
+from django.db import connections, transaction
 from django.core.management import call_command
 from django.apps import apps
 from django.db.utils import OperationalError
@@ -101,6 +101,7 @@ def cambiarhp(request):
         if not (nuevo_host and nuevo_puerto and nuevo_usuario and nueva_contrasena):
             messages.error(request, "Debe proporcionar el host, puerto, usuario y contraseña.")
             return redirect('polls:cargar_csv')
+        
 
         # Verificar si los valores proporcionados coinciden con los del arreglo
         es_valido = any(
@@ -411,9 +412,9 @@ def columnas_seleccionadas(request):
 
 
 def obtener_tablas_disponibles():
-    with connections.cursor() as cursor:
+    with connections['default'].cursor() as cursor:
         # Ejecutar la consulta para obtener todas las tablas en la base de datos
-        cursor.execute("SHOW TABLES LIKE 'csv_%'")
+        cursor.execute("SHOW TABLES LIKE 'app_%'")
         
         # Obtener los resultados de la consulta
         resultados = cursor.fetchall()
@@ -427,7 +428,7 @@ def nueva_tabla(request):
 
     if request.method == 'POST':
         # Obtener el nombre de la tabla del formulario
-        nombre_tabla = "csv_" + request.POST.get('nombre_tabla')
+        nombre_tabla = "app_" + request.POST.get('nombre_tabla')
 
         df_dict = request.session.get('df_selected')
 
@@ -455,7 +456,7 @@ def nueva_tabla(request):
             # Verificar si la tabla ya existe en la base de datos
             if table_name not in existing_tables:
                 # Si la tabla no existe, crearla utilizando SQL
-                with connections.cursor() as cursor:
+                with connections['default'].cursor() as cursor:
 
                     # Define la sentencia SQL para crear la tabla
                     sql_columns = ",\n".join([f"{column} {map_dtype_to_field(df.dtypes[column])}" for column in df.columns])
@@ -480,83 +481,64 @@ def insertar_datos(request):
     if request.method == 'POST':
         # Obtener el nombre de la tabla del formulario
         nombre_tabla = request.POST.get('tabla')
-        
         df_dict = request.session.get('df_selected')
-        
+
         if df_dict is not None:
             # Crear un DataFrame con los datos originales
             df = pd.DataFrame(df_dict)
 
-
-            # Obtener las columnas de fecha y convertir 'NaT' en None para que MySQL lo reconozca como NULL
+            # Manejar columnas datetime
             datetime_columns_dict = request.session.get('datetime_columns', {})
-
             for col, values in datetime_columns_dict.items():
                 if col in df.columns:
-                    # Convertir los valores a datetime si la columna existe en el DataFrame
-                    df[col] = pd.to_datetime(df[col], errors='coerce')
-                    # Reemplazar 'NaT' con None (NULL en la base de datos)
-                    df[col] = df[col].apply(lambda x: None if pd.isna(x) else x)
-                else:
-                    pass
+                    df[col] = pd.to_datetime(df[col], errors='coerce').apply(lambda x: None if pd.isna(x) else x)
 
-            # Obtener las columnas existentes en la tabla de la base de datos
+            # Obtener columnas existentes en la tabla
             existing_columns_info = obtener_columnas_tabla(nombre_tabla)
             existing_columns = {col[0]: col[1] for col in existing_columns_info}
 
-            # Verificar si todas las columnas del DataFrame existen en la tabla
+            # Validar columnas y tipos de datos
             for col in df.columns:
                 if col not in existing_columns:
-                    # Si la columna no existe en la tabla, notificar al usuario y redirigir
-                    messages.error(request, f"La columna '{col}' del DataFrame no existe en la tabla de la base de datos. Por favor, elija otra tabla.")
+                    messages.error(request, f"La columna '{col}' del DataFrame no existe en la tabla de la base de datos.")
                     return redirect('polls:columnas_seleccionadas')
                 elif not tipo_datos_coinciden(df[col].dtype, existing_columns[col]):
-                    # Si los tipos de datos no coinciden, notificar al usuario y redirigir
-                    messages.error(request, f"El tipo de datos de la columna '{col}' del DataFrame no coincide con la tabla de la base de datos. Por favor, elija otra tabla.")
+                    messages.error(request, f"El tipo de datos de la columna '{col}' no coincide con la tabla.")
                     return redirect('polls:columnas_seleccionadas')
 
-            # Reemplazar valores 'NaT' y 'NaN' con None (NULL en la base de datos)
+            # Reemplazar valores NaT, NaN con None
             df = df.replace({pd.NaT: None, pd.NA: None, np.nan: None})
-            # Generar el comando SQL para insertar los datos
+
+            # Crear la consulta SQL
             columns = ', '.join(df.columns)
             placeholders = ', '.join(['%s'] * len(df.columns))
             sql = f"INSERT INTO {nombre_tabla} ({columns}) VALUES ({placeholders})"
-
-            # Obtener los valores de las filas del DataFrame para la inserción
             values = [tuple(row) for row in df.to_numpy()]
 
-            # Ejecutar la consulta SQL para insertar los datos
-            with connections.cursor() as cursor:
-                try:
-                    cursor.executemany(sql, values)
-                    connections.commit()
-                    messages.success(request, f"Datos insertados correctamente en la tabla {nombre_tabla}.")
-                except Exception as e:
-                    
-                    error_value = None  # Inicializamos la variable error_value
-
-                    # Si hay un error, tratamos de encontrar la fila específica que causó el problema
-                    for i, row in enumerate(values):
-                        try:
-                            # Intentamos ejecutar la consulta con una sola fila para encontrar el error exacto
+            # Usar una transacción atómica
+            try:
+                with transaction.atomic():
+                    with connections['default'].cursor() as cursor:
+                        cursor.executemany(sql, values)
+                messages.success(request, f"Datos insertados correctamente en la tabla {nombre_tabla}.")
+            except Exception as e:
+                error_value = None
+                for i, row in enumerate(values):
+                    try:
+                        with connections['default'].cursor() as cursor:
                             cursor.execute(sql, row)
-                        except Exception as row_error:
-                            # Si la fila falla, asignamos esa fila al error_value
-                            error_value = row
-                            break
-                    
-                    # Si 'error_value' tiene algún valor, incluimos la fila en el mensaje de error
-                    if error_value:
-                        messages.error(request, f"Error al insertar datos en la tabla {nombre_tabla}. Detalles: {e}. Fila con error: {error_value}")
-                    else:
-                        # Si no pudimos encontrar una fila específica, mostramos el error general
-                        messages.error(request, f"Error al insertar datos en la tabla {nombre_tabla}. Detalles: {e}")
-                    return redirect('polls:columnas_seleccionadas')
+                    except Exception as row_error:
+                        error_value = row
+                        break
+                
+                if error_value:
+                    messages.error(request, f"Error al insertar datos. Detalles: {e}. Fila con error: {error_value}")
+                else:
+                    messages.error(request, f"Error al insertar datos en la tabla {nombre_tabla}. Detalles: {e}")
+                return redirect('polls:columnas_seleccionadas')
 
-            # Si la inserción fue exitosa, redirigir a alguna página
             return redirect('polls:columnas_seleccionadas')
-    
-    # Redirigir si no se proporcionó un método POST o si no se encontraron datos en el DataFrame
+
     return redirect('polls:columnas_seleccionadas')
 
 
@@ -565,7 +547,7 @@ def obtener_columnas_tabla(nombre_tabla):
     """
     Obtener las columnas existentes en una tabla de la base de datos junto con su tipo de datos.
     """
-    with connections.cursor() as cursor:
+    with connections['default'].cursor() as cursor:
         cursor.execute(f"SHOW COLUMNS FROM {nombre_tabla}")
         columnas_info = cursor.fetchall()
         columnas = [(fila[0], fila[1]) for fila in columnas_info]

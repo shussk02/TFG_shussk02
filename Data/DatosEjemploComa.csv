@@ -1,11 +1,11 @@
-ID_Dispositivo,Nombre_Dispositivo,Cliente,Fecha_Reporte,Descripcion_Problema,Estado,Tecnico_Asignado,Prioridad,Fecha_Resolucion,Comentarios_Adicionales
-1,Router-01,Empresa ABC,2024-12-01,"El dispositivo no está conectando a internet.",Abierto,Ana López,Alta,,Requiere intervención urgente.
-2,PC-Laptop-02,Empresa XYZ,2024-12-02,"Pantalla azul al iniciar el sistema.",Cerrado,Carlos Gómez,Media,2024-12-03,"Reinstalación del sistema operativo."
-3,Switch-03,Empresa ABC,2024-12-05,"No hay conexión de red en algunas zonas.",En progreso,Javier Díaz,Alta,,"Se está investigando el problema de configuración."
-4,Servidor-01,Empresa XYZ,2024-12-06,"El servidor se reinicia solo.",Abierto,María Fernández,Alta,,Esperando diagnóstico de hardware.
-5,PC-Desktop-04,Empresa DEF,2024-12-07,"El software de contabilidad no arranca.",Cerrado,Pedro Martín,Baja,2024-12-08,"Reinstalación del software solucionó el problema."
-6,Router-02,Empresa ABC,2024-12-08,"El dispositivo está lento y se desconecta constantemente.",Abierto,Sofia Ruiz,Alta,,Esperando reemplazo de firmware.
-7,Tablet-01,Empresa DEF,2024-12-10,"El dispositivo no responde al táctil.",Cerrado,Lucía Pérez,Alta,2024-12-11,"Reemplazo de la pantalla táctil."
-8,PC-Server-02,Empresa XYZ,2024-12-12,"Problemas con la red, no se pueden conectar nuevos dispositivos.",En progreso,Juan Sánchez,Media,,"Realizando pruebas de conectividad."
-9,Monitor-01,Empresa ABC,2024-12-13,"No muestra imagen.",Abierto,Ana López,Baja,,Esperando diagnóstico de hardware.
-10,Switch-04,Empresa DEF,2024-12-14,"Las conexiones de red son intermitentes.",Cerrado,Carlos Gómez,Alta,2024-12-15,"Reemplazo del switch completo."
+Nombre_Dispositivo,Cliente,Fecha_Reporte,Descripcion_Problema,Estado,Tecnico_Asignado,Prioridad,Fecha_Resolucion,Comentarios_Adicionales
+Router-01,Empresa ABC,2024-12-01,"El dispositivo no está conectando a internet.",Abierto,Ana López,Alta,,Requiere intervención urgente.
+PC-Laptop-02,Empresa XYZ,2024-12-02,"Pantalla azul al iniciar el sistema.",Cerrado,Carlos Gómez,Media,2024-12-03,"Reinstalación del sistema operativo."
+Switch-03,Empresa ABC,2024-12-05,"No hay conexión de red en algunas zonas.",En progreso,Javier Díaz,Alta,,"Se está investigando el problema de configuración."
+Servidor-01,Empresa XYZ,2024-12-06,"El servidor se reinicia solo.",Abierto,María Fernández,Alta,,Esperando diagnóstico de hardware.
+PC-Desktop-04,Empresa DEF,2024-12-07,"El software de contabilidad no arranca.",Cerrado,Pedro Martín,Baja,2024-12-08,"Reinstalación del software solucionó el problema."
+Router-02,Empresa ABC,2024-12-08,"El dispositivo está lento y se desconecta constantemente.",Abierto,Sofia Ruiz,Alta,,Esperando reemplazo de firmware.
+Tablet-01,Empresa DEF,2024-12-10,"El dispositivo no responde al táctil.",Cerrado,Lucía Pérez,Alta,2024-12-11,"Reemplazo de la pantalla táctil."
+PC-Server-02,Empresa XYZ,2024-12-12,"Problemas con la red, no se pueden conectar nuevos dispositivos.",En progreso,Juan Sánchez,Media,,"Realizando pruebas de conectividad."
+Monitor-01,Empresa ABC,2024-12-13,"No muestra imagen.",Abierto,Ana López,Baja,,Esperando diagnóstico de hardware.
+Switch-04,Empresa DEF,2024-12-14,"Las conexiones de red son intermitentes.",Cerrado,Carlos Gómez,Alta,2024-12-15,"Reemplazo del switch completo."
